@@ -9,7 +9,7 @@ Rdzeniem jest społeczność; wiedza, dzienniczek i przypomnienia ją obsługuj�
 ## Struktura
 
 ```
-app/krag.html            prototyp UI (jeden plik, zero sieci, otwierany z dysku)
+index.html               prototyp UI (serwowany przez Vercel z korzenia) (jeden plik, zero sieci, otwierany z dysku)
 library/                 biblioteka wiedzy — warstwy 1 (fakty) i 4 (źródła)
   seed/                  ziarna: 134 fakty + 81 miejsc (provenance: AI_RESEARCH / OFFICIAL_LIST)
   library/               sources.json, arv.json (56 ARV z RPL), baza interakcji, allowlista ATC
