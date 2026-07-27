@@ -54,3 +54,15 @@ Program ARV (koniec 2026), art. 161 KK (nowelizacja), PTN AIDS 2026 / EACS v14 (
 - [ ] Odbudowa: zdecydować, które szczegóły liczbowe (INR %, tablice życia) świadomie zostają poza treścią (K-13), a które warto dodać jako fakt z podpisem.
 - [ ] Luki A → agenda pierwszej konsultacji z zakaźnikiem (te same 82 wpisy czekają na podpis).
 - [ ] Luki C → decyzja, czy zlecać nowy deep-research.
+
+---
+
+## Wynik automatycznego przebiegu wierności (2026-07-27)
+
+Porównano 112 faktów bazy (`hiv-0001..0112`) z 112 faktami atomowymi Kompendium, zdanie po zdaniu:
+- **110/112 — wysoka zgodność** z faktem źródłowym (wierna parafraza).
+- **2 do ręcznego oka** (tylko inne sformułowanie, te same dane, bez błędu):
+  - `hiv-0008` — seks waginalny 8/4 na 10 000: te same liczby, inna składnia zdania.
+  - `hiv-0099` — program ARV 2022–2026: baza skraca pełną nazwę programu.
+
+Wniosek: baza jest **wierna researchowi** — nie ma dryfu treści ani dopisanych twierdzeń. Ręczny przegląd zawężony do 2 pozycji kosmetycznych. Moduły 1 i 6 dodane jako 8 faktów DRAFT (`pierwsze-dni`, `dlugoterminowo`) — w kolejce podpisu zakaźnika.
