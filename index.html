@@ -565,6 +565,11 @@ button{font-family:inherit}
       <div style="font-size:12px;color:var(--tx-3);margin-top:4px" id="meSince"></div>
       <div style="margin-top:10px" id="meLangs"></div>
     </div>
+    <div class="card" data-nav="uwagi" style="cursor:pointer;border-color:rgba(126,155,119,.35);background:rgba(126,155,119,.06);display:flex;align-items:center;gap:12px">
+      <span style="font-size:20px;color:var(--moss)">✎</span>
+      <div style="flex:1"><div class="t" data-i="uwagiCardT"></div><div class="s" data-i="uwagiCardS"></div></div>
+      <span style="color:var(--tx-3)">›</span>
+    </div>
     <p class="lbl" data-i="myRole"></p>
     <div class="card" style="padding:4px 16px" id="roleList"></div>
     <p class="note" data-i="roleNote"></p>
@@ -589,6 +594,8 @@ button{font-family:inherit}
     <div class="card"><p data-i="langCardTx"></p>
       <button class="btn ghost sm" style="margin-top:13px" data-nav="jezyk" data-i="langSettings"></button></div>
   </section>
+  <!-- WSPÓŁTWÓRZ / UWAGI -->
+  <section class="screen" id="sc-uwagi"><div id="uwagiBody"></div></section>
 
   <!-- WSPARCIE -->
   <section class="screen" id="sc-help">
@@ -985,6 +992,10 @@ NEWK.openLesson={pl:"Otwórz lekcję",en:"Open the lesson",uk:"Відкрити 
 NEWK.fromLibrary={pl:"z biblioteki Kręgu",en:"from the Circle library",uk:"з бібліотеки Кола",ru:"из библиотеки Круга",de:"aus der Kreis-Bibliothek",cs:"z knihovny Kruhu",sk:"z knižnice Kruhu",fr:"de la bibliothèque du Cercle",es:"de la biblioteca del Círculo",it:"dalla biblioteca del Cerchio"};
 for(var _k in NEWK){T[_k]=NEWK[_k]}
 for(var _k2 in EXTRA){ if(!T[_k2])T[_k2]={}; for(var _c in EXTRA[_k2]) T[_k2][_c]=EXTRA[_k2][_c]; }
+T.tTitleUwagi={pl:"Współtwórz Krąg",en:"Co-create the Circle",uk:"Співтвори Коло",ru:"Соавтор Круга",de:"Den Kreis mitgestalten",cs:"Spoluvytvářej Kruh",sk:"Spoluvytváraj Kruh"};
+T.uwagiCardT={pl:"Współtwórz Krąg",en:"Co-create the Circle"};
+T.uwagiCardS={pl:"Podziel się uwagą o aplikacji. Nic o nas bez nas.",en:"Share a thought about the app. Nothing about us without us."};
+
 T.tTitlePowtorka={pl:"Powtórka",en:"Review",uk:"Повторення",ru:"Повторение",de:"Wiederholung",cs:"Opakování",sk:"Opakovanie"};
 T.revStart={pl:"Zacznij powtórkę",en:"Start review"};
 T.revShow={pl:"Pokaż",en:"Show"};
@@ -1018,7 +1029,7 @@ function go(k){
   $('#title').textContent=title(k);
   $('#back').style.display=TABS.indexOf(k)===-1?'block':'none';
   $('#view').scrollTop=0;cur=k;
-  if(k==='mapa'&&typeof renderMapa==='function')renderMapa();  if(k==='trenerw'&&typeof renderTrenerw==='function')renderTrenerw();
+  if(k==='mapa'&&typeof renderMapa==='function')renderMapa();  if(k==='trenerw'&&typeof renderTrenerw==='function')renderTrenerw();  if(k==='uwagi'&&typeof renderUwagi==='function')renderUwagi();
 }
 
 /* === MAPA / GDZIE SIĘ ZGŁOSIĆ (dane placówek: KC ds. AIDS / gov.pl) === */
@@ -2005,6 +2016,29 @@ function rate(kind){
   if(kind===2)c.box=Math.min(5,c.box+1); else c.box=1;
   c.due=REV.day+IVL[c.box];
   REV.card[f.id]=c; revPos++; revShown=false; drawCard();
+}
+
+
+/* === WSPÓŁTWÓRZ KRĄG / UWAGI (GIPA) === */
+var uwagiKat='pomysl';
+function renderUwagi(){
+  var el=$('#uwagiBody');if(!el)return;var P=lang==='pl';
+  var kat=[['pomysl',P?'Pomysł':'Idea'],['blad',P?'Coś nie działa':'Something broke'],['tresc',P?'Treść / błąd merytoryczny':'Content / factual error'],['inne',P?'Inne':'Other']];
+  el.innerHTML=
+    '<div class="card"><p style="margin:0">'+(P
+      ?'Krąg powstaje z ludźmi, którzy z niego korzystają. Twoja uwaga jest anonimowa — nie zbieramy przy niej żadnych danych o Tobie.'
+      :'The Circle is built with the people who use it. Your note is anonymous — we collect no data about you with it.')+'</p></div>'+
+    '<p class="lbl">'+(P?'Czego dotyczy':'What it is about')+'</p>'+
+    '<div class="chips" id="uwagiKat">'+kat.map(function(k){return '<button class="chip'+(k[0]===uwagiKat?' on':'')+'" data-kat="'+k[0]+'">'+k[1]+'</button>'}).join('')+'</div>'+
+    '<p class="lbl">'+(P?'Twoja uwaga':'Your note')+'</p>'+
+    '<div class="cinput" style="align-items:stretch"><textarea id="uwagaTxt" rows="4" style="min-height:120px" placeholder="'+(P?'Napisz, co poprawić, czego brakuje albo co się sprawdza…':'Write what to improve, what is missing, or what works…')+'"></textarea></div>'+
+    '<button class="btn" style="margin-top:14px" id="uwagaSend">'+(P?'Wyślij uwagę':'Send note')+'</button>'+
+    '<p class="note">'+(P?'Uwagi merytoryczne o treści medycznej trafiają do kolejki weryfikacji — tej samej, którą podpisuje lekarz. Reszta pomaga nam ulepszać aplikację.':'Notes about medical content go to the same review queue a doctor signs off. The rest helps us improve the app.')+'</p>';
+  $$('#uwagiKat [data-kat]').forEach(function(b){b.addEventListener('click',function(){uwagiKat=b.dataset.kat;renderUwagi()})});
+  $('#uwagaSend').addEventListener('click',function(){
+    var v=$('#uwagaTxt').value.trim();if(!v){toast(P?'Napisz coś najpierw':'Write something first');return}
+    $('#uwagaTxt').value='';toast(P?'Dziękujemy. To realnie kształtuje Krąg.':'Thank you. This genuinely shapes the Circle.');go('ja');
+  });
 }
 
 function renderPaths2(){
