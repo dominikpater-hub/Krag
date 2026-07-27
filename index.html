@@ -327,6 +327,24 @@ button{font-family:inherit}
 .rb-show{grid-column:1 / -1;background:var(--surf-2);color:var(--tx)}
 .revprog{height:4px;background:var(--surf-2);border-radius:2px;margin:2px 0 0;overflow:hidden}
 .revprog i{display:block;height:100%;background:var(--moss);border-radius:2px}
+/* K-28: Ida prowadzi — wejście (L1) + kontekstowy przewodnik (L3) */
+.onbov{position:absolute;inset:0;z-index:60;background:var(--app);display:none;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.onbov.on{display:flex}
+.onb-in{flex:1 0 auto;display:flex;flex-direction:column;padding:46px 26px 30px;min-height:100%}
+.onb-badge{width:60px;height:60px;border-radius:50%;border:1.5px solid var(--moss);display:flex;align-items:center;justify-content:center;color:var(--moss);font-size:24px;margin-bottom:22px}
+.onb-h{font-size:23px;line-height:1.26;margin:0 0 16px;color:var(--tx);font-weight:600}
+.onb-p{font-size:14.5px;line-height:1.6;color:var(--tx-2);margin:0 0 15px}
+.onb-p b{color:var(--tx);font-weight:600}
+.onb-card{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin:4px 0 16px}
+.onb-pseudo{font-family:var(--serif);font-size:22px;color:var(--moss)}
+.onb-list{list-style:none;padding:0;margin:2px 0 20px}
+.onb-list li{position:relative;padding:7px 0 7px 22px;font-size:13.5px;color:var(--tx-2);line-height:1.5}
+.onb-list li::before{content:'';position:absolute;left:2px;top:14px;width:6px;height:6px;border-radius:50%;background:var(--moss)}
+.onb-spacer{flex:1 0 16px}
+.askida{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:rgba(126,155,119,.08);border:1px solid rgba(126,155,119,.28);border-radius:13px;padding:11px 14px;margin:0 0 16px;cursor:pointer;color:var(--tx-2);font-size:12.5px;line-height:1.4}
+.askida .ai{color:var(--moss);font-size:15px;flex:0 0 auto}
+.askida b{color:var(--tx);font-weight:600}
+.askida .arw{margin-left:auto;color:var(--moss);flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -345,6 +363,7 @@ button{font-family:inherit}
 
   <!-- KRĄG -->
   <section class="screen" id="sc-krag">
+    <div id="ask-krag"></div>
     <div class="seg" id="kseg">
       <button class="on" data-k="wpisy" data-i="segRoom"></button>
       <button data-k="most" data-i="segBridge"></button>
@@ -446,6 +465,7 @@ button{font-family:inherit}
 
   <!-- WIEDZA: HUB -->
   <section class="screen" id="sc-wiedza">
+    <div id="ask-wiedza"></div>
     <div class="tile" data-nav="trenerw">
       <div class="tnum">▤</div>
       <div><div class="tt" data-i="trainK"></div><div class="ts" data-i="trainKs"></div>
@@ -492,6 +512,7 @@ button{font-family:inherit}
 
   <!-- ZDROWIE -->
   <section class="screen" id="sc-zdrowie">
+    <div id="ask-zdrowie"></div>
     <div class="seg" id="zseg">
       <button class="on" data-z="wyniki" data-i="segResults"></button>
       <button data-z="leki" data-i="segMeds"></button>
@@ -570,6 +591,11 @@ button{font-family:inherit}
       <div style="flex:1"><div class="t" data-i="uwagiCardT"></div><div class="s" data-i="uwagiCardS"></div></div>
       <span style="color:var(--tx-3)">›</span>
     </div>
+    <div class="card" id="onbReplay" style="cursor:pointer;display:flex;align-items:center;gap:12px">
+      <span style="font-size:20px;color:var(--moss)">◈</span>
+      <div style="flex:1"><div class="t" id="onbReplayT"></div><div class="s" id="onbReplayS" style="color:var(--tx-3)"></div></div>
+      <span style="color:var(--tx-3)">›</span>
+    </div>
     <p class="lbl" data-i="myRole"></p>
     <div class="card" style="padding:4px 16px" id="roleList"></div>
     <p class="note" data-i="roleNote"></p>
@@ -617,6 +643,7 @@ button{font-family:inherit}
     <button class="tab" role="tab" aria-selected="false" data-nav="zdrowie"><span class="g">◈</span><span data-i="tabHealth"></span></button>
     <button class="tab" role="tab" aria-selected="false" data-nav="ja"><span class="g">○</span><span data-i="tabProfile"></span></button>
   </div>
+  <div class="onbov" id="onbov"><div class="onb-in" id="onbIn"></div></div>
   <div class="toast" id="toast"></div>
 </div>
 
@@ -2858,6 +2885,7 @@ function apply(){
   $$('#mlangs .chip').forEach(function(c){c.addEventListener('click',function(){c.classList.toggle('on')})});
   resetDrop();renderFeed();renderPeople();renderMeds();renderSearch();
   renderLangScreen();resetChat();draw();
+  paintAskIda();paintOnbReplay();
 }
 function setLang(c){lang=c;shownOrig={};apply();toast(LANGS.filter(function(l){return l.c===c})[0].n)}
 
@@ -2865,7 +2893,71 @@ $$('#mcap .chip').forEach(function(c){c.addEventListener('click',function(){
   $$('#mcap .chip').forEach(function(x){x.classList.remove('on')});c.classList.add('on')})});
 $('#mentorGo').addEventListener('click',function(){toast(t('signUpBuddy'));go('krag');seg('k','osoby')});
 
-apply();go('ida');
+/* =========== K-28: IDA PROWADZI — L1 wejście + L3 przewodnik kontekstowy =========== */
+var ONB_PSEUDO=['Cichy Świt','Spokojna Rzeka','Wschodni Wiatr','Jasny Brzeg','Ciepły Kamień','Nocny Ogród','Daleki Ton','Miękkie Światło'];
+function renderOnboarding(){
+  var P=lang==='pl';
+  var ps=ONB_PSEUDO[Math.floor(Math.random()*ONB_PSEUDO.length)];
+  var h;
+  if(P){
+    h='<div class="onb-badge">◈</div>'+
+    '<h2 class="onb-h">Cześć. Jestem Ida<br>i prowadzę Krąg.</h2>'+
+    '<p class="onb-p">Krąg to <b>miejsce wsparcia między ludźmi</b>, którzy żyją z HIV albo są blisko kogoś takiego. Nie jestem lekarzem i nie zastępuję poradni — <b>objaśniam pojęcia i prowadzę</b>, ale nigdy nie oceniam Twoich wyników.</p>'+
+    '<p class="onb-p">Wchodzisz tu <b>bez nazwiska, maila i numeru</b>. To, co zapiszesz o swoim zdrowiu, zostaje na tym telefonie — Krąg tego nie widzi.</p>'+
+    '<p class="lbl">Twój pseudonim w Kręgu</p>'+
+    '<div class="onb-card"><span class="onb-pseudo">'+ps+'</span><br><button class="btn ghost sm" id="onbReroll" style="margin-top:12px;width:auto;padding:8px 14px">Wylosuj inny</button></div>'+
+    '<p class="onb-p">Do Kręgu wchodzi się <b>z zaproszenia</b> — ktoś, kto już tu jest, daje Ci kod. Ty też będziesz mógł zaprosić kogoś, komu ufasz.</p>'+
+    '<ul class="onb-list"><li>Rozmowa jest tylko między dwiema osobami i ukrywa, kim jesteście.</li><li>Zawsze możesz zablokować i zgłosić.</li><li>Kiedy czegoś nie wiem, mówię to wprost — nie zgaduję.</li></ul>'+
+    '<div class="onb-spacer"></div>'+
+    '<button class="btn" id="onbGo">Wejdź do Kręgu</button>'+
+    '<p class="note" style="text-align:center;margin-top:14px">To prototyp — pokazuje, jak Krąg prowadzi, na przykładowych danych.</p>';
+  }else{
+    h='<div class="onb-badge">◈</div>'+
+    '<h2 class="onb-h">Hi. I am Ida,<br>and I guide the Circle.</h2>'+
+    '<p class="onb-p">The Circle is a <b>place of support between people</b> living with HIV or close to someone who is. I am not a doctor and do not replace a clinic — <b>I explain concepts and guide you</b>, but I never judge your results.</p>'+
+    '<p class="onb-p">You enter <b>with no name, email or number</b>. Whatever you note about your health stays on this phone — the Circle does not see it.</p>'+
+    '<p class="lbl">Your nickname in the Circle</p>'+
+    '<div class="onb-card"><span class="onb-pseudo">'+ps+'</span><br><button class="btn ghost sm" id="onbReroll" style="margin-top:12px;width:auto;padding:8px 14px">Draw another</button></div>'+
+    '<p class="onb-p">You join the Circle <b>by invitation</b> — someone already here gives you a code. You will be able to invite someone you trust too.</p>'+
+    '<ul class="onb-list"><li>A conversation is only between two people and hides who you are.</li><li>You can always block and report.</li><li>When I do not know something, I say so — I do not guess.</li></ul>'+
+    '<div class="onb-spacer"></div>'+
+    '<button class="btn" id="onbGo">Enter the Circle</button>'+
+    '<p class="note" style="text-align:center;margin-top:14px">This is a prototype — it shows how the Circle guides you, on sample data.</p>';
+  }
+  $('#onbIn').innerHTML=h;
+  $('#onbReroll').onclick=function(){renderOnboarding()};
+  $('#onbGo').onclick=function(){closeOnboarding()};
+}
+function openOnboarding(){renderOnboarding();$('#onbov').classList.add('on');$('#onbov').scrollTop=0}
+function closeOnboarding(){$('#onbov').classList.remove('on');go('ida')}
+function askIda(q){go('ida');setTimeout(function(){answerFromBase(q)},70)}
+function paintAskIda(){
+  var P=lang==='pl';
+  var M={
+    wiedza:P?['Zapytaj Idę o pojęcie','np. co znaczy „niewykrywalny”','Co znaczy niewykrywalny?']
+            :['Ask Ida about a concept','e.g. what “undetectable” means','What does undetectable mean?'],
+    zdrowie:P?['Zapytaj Idę o pojęcie, nie o wynik','„co znaczy niewykrywalny”, nie „czy mój wynik jest dobry”','Co znaczy niewykrywalny?']
+            :['Ask Ida a concept, not a result','“what undetectable means”, not “is my result good”','What does undetectable mean?'],
+    krag:P?['Zapytaj Idę','czy muszę komuś mówić o HIV','Czy muszę powiedzieć pracodawcy?']
+          :['Ask Ida','whether you must tell anyone','Do I have to tell my employer?']
+  };
+  Object.keys(M).forEach(function(key){
+    var el=$('#ask-'+key);if(!el)return;var m=M[key];
+    el.innerHTML='<button class="askida"><span class="ai">◈</span><span><b class="axb"></b> — <span class="axs"></span></span><span class="arw">›</span></button>';
+    el.querySelector('.axb').textContent=m[0];
+    el.querySelector('.axs').textContent=m[1];
+    el.querySelector('.askida').onclick=function(){askIda(m[2])};
+  });
+}
+function paintOnbReplay(){
+  var P=lang==='pl';
+  var t1=$('#onbReplayT'),t2=$('#onbReplayS');
+  if(t1)t1.textContent=P?'Powitanie od Idy':'Ida’s welcome';
+  if(t2)t2.textContent=P?'Zobacz wprowadzenie jeszcze raz':'See the introduction again';
+  var r=$('#onbReplay');if(r)r.onclick=function(){openOnboarding()};
+}
+
+apply();go('ida');openOnboarding();
 })();
 </script>
 </body>
