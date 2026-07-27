@@ -26,7 +26,7 @@ const COST = {
   pep: 100, ekspozycja: 95, granice: 90, 'prep-pl': 80, 'leczenie-pl': 75, uu: 70,
   bezpieczenstwo: 68, prawo: 60, testowanie: 55, odbudowa: 52, prep: 50,
   leczenie: 45, ciaza: 45, transmisja: 40, psyche: 35, przebieg: 30,
-  wspolistniejace: 25, stygma: 20, wyleczenie: 15, epidemiologia: 10
+  wspolistniejace: 25, stygma: 20, wyleczenie: 15, epidemiologia: 10, 'pierwsze-dni': 50, dlugoterminowo: 30
 };
 const NAZWA = {
   pep: 'PEP — po ryzykownym kontakcie', ekspozycja: 'Zakłucia i ekspozycja zawodowa',
@@ -37,7 +37,7 @@ const NAZWA = {
   leczenie: 'Leki i terapia', ciaza: 'Ciąża i dzieci', transmisja: 'Jak się przenosi',
   psyche: 'Zdrowie psychiczne', przebieg: 'Wiremia i CD4',
   wspolistniejace: 'Choroby współistniejące', stygma: 'Stygmatyzacja',
-  wyleczenie: 'Badania nad wyleczeniem', epidemiologia: 'Dane o Polsce'
+  wyleczenie: 'Badania nad wyleczeniem', epidemiologia: 'Dane o Polsce', 'pierwsze-dni': 'Pierwsze dni po diagnozie', dlugoterminowo: 'Życie długoterminowe'
 };
 
 const gate = policy.publishGate.requireVerifierForBlocks;

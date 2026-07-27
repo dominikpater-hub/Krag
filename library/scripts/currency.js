@@ -18,7 +18,7 @@ const COST = {
   uu: 70, prawo: 60, testowanie: 55, prep: 50, leczenie: 45,
   ciaza: 45, transmisja: 40, przebieg: 30, wspolistniejace: 25,
   stygma: 20, wyleczenie: 15, epidemiologia: 10, granice: 90,
-  odbudowa: 52, bezpieczenstwo: 68, psyche: 35
+  odbudowa: 52, bezpieczenstwo: 68, psyche: 35, 'pierwsze-dni': 50, dlugoterminowo: 30
 };
 
 const rows = fs.readdirSync(path.join(ROOT, 'entries'))

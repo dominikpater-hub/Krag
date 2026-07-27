@@ -63,7 +63,9 @@
       "ekspozycja",
       "odbudowa",
       "bezpieczenstwo",
-      "psyche"
+      "psyche",
+      "pierwsze-dni",
+      "dlugoterminowo"
     ],
     "verifierRole": "lekarz zakaźnik lub inna osoba z uprawnieniami do firmowania treści medycznych",
     "onMissingVerifier": "DRAFT",
