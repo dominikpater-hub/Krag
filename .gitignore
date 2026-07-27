@@ -1,0 +1,6 @@
+library/entries/
+library/dist/
+library/state/
+library/review/
+node_modules/
+*.log

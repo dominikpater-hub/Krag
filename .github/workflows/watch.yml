@@ -1,0 +1,23 @@
+name: krag-watch
+on:
+  schedule:
+    - cron: '17 5 * * *'
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: build i obserwacja źródeł
+        working-directory: library
+        run: ./build.sh && (node scripts/watch.js || true)
+      - name: commit kolejki, jeśli się zmieniła
+        run: |
+          git config user.name  "krag-watch"
+          git config user.email "watch@krag.local"
+          git add -A library/state library/entries 2>/dev/null || true
+          git diff --cached --quiet || { git commit -m "watch: aktualizacja $(date -u +%F)"; git push; }
