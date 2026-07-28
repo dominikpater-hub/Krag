@@ -49,14 +49,14 @@ Najdłuższy czas realizacji, dlatego rusza pierwsza i trwa równolegle do całe
 Stos wybrany (K-30). Buduję kod niezależnie od bramek, ale na produkcję wchodzi po Fazie 1 + akceptacji hostingu.
 
 1. **[W] Akceptacja O-09** — Scaleway WAW vs Hetzner. Odblokowuje staging.
-2. **[C] Schemat PostgreSQL — minimalny rekord** (K-04): `pseudonim`, `klucz_publiczny`, `koperty` (zaszyfrowane), `znacznik_czasu`, graf zaproszeń na kluczach. Zero PII. Rejestr czynności = ten schemat.
-3. **[C] Cienkie API (TypeScript):** rejestracja kodem zaproszenia, publikacja klucza publicznego (PreKeys), skrzynka na koperty, endpointy zgłoszeń.
-4. **[C] E2E rozmów — Signal Protocol** (`libsignal-client`, model PreKeys). Audyt wybranej biblioteki (śledzenie CVE).
-5. **[C] Anty-abuse bez PII:** jednorazowe kody zaproszeń + (opcjonalnie) Privacy Pass / proof-of-work.
-6. **[C/W] Moderacja — message franking** (po O-08): zgłoszenie ujawnia wybraną wiadomość, bez skanowania całości; kolejka z człowiekiem.
-7. **[C] Staging na Scaleway WAW** + backupy + DPA podpisane.
+2. **[C] ✅ Schemat PostgreSQL — minimalny rekord** (K-04): `pseudonim`, `klucz_publiczny`, `koperty` (zaszyfrowane), `znacznik_czasu`, graf zaproszeń na kluczach. Zero PII. → `Krag-app/server/schema.sql`.
+3. **[C] ✅ Cienkie API (TypeScript/Fastify):** rejestracja kodem zaproszenia, logowanie challenge-response (ECDSA P-256), publikacja/pobranie PreKeys, skrzynka kopert (kasowana po odbiorze), endpoint zgłoszeń. Testy integracyjne na pg-mem: **3/3 zielone**. → `Krag-app/server/`.
+4. **[C] E2E rozmów — Signal Protocol** (`libsignal-client`, PreKeys) — po stronie klientów. API już przenosi PreKeys i koperty; właściwe szyfrowanie = następny krok. Audyt biblioteki (CVE).
+5. **[C] ~częściowo~ Anty-abuse:** jednorazowe kody zaproszeń + limit 5 aktywnych — **gotowe**. Privacy Pass / proof-of-work — TODO.
+6. **[C/W] ~szkielet gotowy~ Moderacja — message franking** (po O-08): endpoint `/reports` + kolejka są; człowiek po drugiej stronie = decyzja O-08.
+7. **[C] Utwardzenie przed produkcją:** hash kodów/tokenów w bazie, minimalizacja metadanych kopert; **staging na Scaleway WAW** + backupy + DPA — po O-09 i checklistcie prawnej.
 
-**Definicja done Fazy 2:** działający, przetestowany backend na stagingu; serwer widzi tylko pseudonim + koperty; rozmowy szyfrowane end-to-end; zgłoszenia trafiają do kolejki.
+**Definicja done Fazy 2:** działający, przetestowany backend na stagingu; serwer widzi tylko pseudonim + koperty; rozmowy szyfrowane end-to-end; zgłoszenia trafiają do kolejki. **Stan: rdzeń API gotowy i przetestowany lokalnie; zostaje E2E po stronie klienta, utwardzenie i deploy.**
 
 ---
 
