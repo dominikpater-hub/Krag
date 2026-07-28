@@ -98,21 +98,43 @@ Kanał prywatny wrażliwej grupy **nie może** istnieć bez ścieżki zgłoszeń
 
 ---
 
-## 7. Co to znaczy dla wyboru technologii (wejście do promptu A2)
+## 7. Stos technologiczny — rekomendacja z researchu A2 (rozstrzygnięte)
 
-Ten podział to zarazem **kryteria** do deep-researchu backendu (`research/PROMPT-backend-research.md`):
-- Serwer, który **nie musi** rozumieć treści → można iść w kierunku minimalnego relaya + storage, nie ciężkiego backendu aplikacyjnego.
-- Konta bez PII → uwierzytelnianie kluczem publicznym, nie klasyczny auth z e-mailem (to zawęża wybór Supabase/Appwrite/PocketBase — czy dają auth „bring-your-own-key").
-- E2E + minimalizacja metadanych + rezydencja UE → to twarde wymaganie RODO art. 9, nie „nice to have".
-- PWA vs natywna: E2E i bezpieczne trzymanie klucza prywatnego łatwiej domknąć natywnie (Keystore/Keychain) niż w przeglądarce — **to jedno z pytań promptu**.
+Deep-research backendu wrócił (`research/A2-backend-hosting-rekomendacja.md`) i potwierdził ten podział. Konkretny stos:
+
+| Warstwa | Wybór | Dlaczego |
+|---|---|---|
+| **Backend** | **własny minimalny stos: PostgreSQL + cienkie API** (Node/TS lub Go) na jednym VPS w UE | Pełna kontrola nad tym, jakie dane w ogóle powstają na serwerze (RODO art. 9). Bez zależności od dostawcy z jurysdykcją USA. Alternatywa niskiego nakładu: **PocketBase** (1 binarka, <30 MB RAM), ale wciąż przed 1.0. |
+| **Hosting** | **Hetzner (DE/FI, ~4,50 €/mies.)** albo **OVHcloud / Scaleway — region Warszawa** | Wszystkie trzy: UE, ISO 27001, DPA, poza jurysdykcją USA (Schrems II OK). **Wybór lokalizacji = jedyna otwarta decyzja właściciela (O-09).** Warszawa, jeśli priorytetem są dane fizycznie w Polsce; Hetzner, jeśli najniższy koszt/prostota. |
+| **E2E rozmów 1:1** | **Signal Protocol** (`libsignal-client`, oficjalne, typowane TS; model PreKeys) | Najdojrzalszy dla 1:1, PreKeys pasują idealnie do kont bez tożsamości (klient publikuje tylko klucze publiczne). MLS (RFC 9420) dopiero powyżej ~50 tys. użytkowników / większych grup. |
+| **Konto** | **lokalny klucz kryptograficzny + kod zaproszenia**, backup przez **frazę odzyskiwania BIP-39** | Passkeys odrzucone jako *główny* mechanizm: synchronizują się przez iCloud/Google → wprowadzają pośrednika chmurowego, sprzeczne z „zero tożsamości". Passkeys tylko opcjonalnie, do odblokowania. |
+| **Dane zdrowotne** | **tylko urządzenie: IndexedDB + Web Crypto**, `navigator.storage.persist()` | Zgodne z §1. Ryzyko eviction realne → stąd obowiązkowy backup klucza i eksport dziennika. |
+| **Klient** | **PWA wystarcza** (nie natywna) | Web Crypto + IndexedDB + service worker + push (iOS 16.4+ tylko po „dodaj do ekranu"). Zaleta prywatnościowa: brak sklepu = brak deklaracji „Health App" Google/Apple i metadanych konta dewelopera. |
+| **Moderacja (O-08)** | **message franking** + kolejka zgłoszeń z człowiekiem | Godzi E2E z moderacją: zgłoszenie ujawnia wybraną wiadomość weryfikowalnie, bez skanowania całości. |
+| **Anty-abuse** | jednorazowe kody zaproszeń + opcjonalnie **Privacy Pass / blinded tokens**, proof-of-work | Rate-limiting i atestacja bez PII. |
+
+**Progi zmieniające decyzję:** >50 tys. użytkowników lub etat DevOps → rozważyć MLS i architekturę wielousługową; wejście CSAR z obowiązkowym skanowaniem → ponowna analiza legalności E2E (na lipiec 2026 trilog bez porozumienia, skanowania nie ma).
 
 ---
 
 ## 8. Granice tego dokumentu
 
-To jest **architektura docelowa**, świadomie narysowana przed kodem, żeby prompt researchu miał kryteria, a właściciel — mapę decyzji. **Nie buduję jej teraz**, bo zależy od:
-- **O-08** (kto moderuje) — bez tego rozmowy nie ruszają produkcyjnie,
-- **O-09/O-10** (backend, hosting, retencja, eksport RODO art. 20) — decyzja infrastrukturalna po researchu A2,
-- **podpisu lekarza** — bo bez `dist/` apka i tak nie ma co pokazać.
+To jest **architektura docelowa**, teraz uzupełniona o rozstrzygnięty stos (A2). Co nadal blokuje budowę produkcyjną:
+- **O-09 lokalizacja hostingu** — jedyna otwarta poddecyzja infrastrukturalna (Hetzner DE/FI vs Warszawa OVH/Scaleway); reszta stosu wybrana.
+- **O-08** (kto moderuje) — bez człowieka po drugiej stronie rozmowy nie ruszają produkcyjnie.
+- **Checklista prawna przed rejestracją** (§9) — DPIA, rejestr czynności, wyraźna zgoda, DPA, IOD, notice-and-action DSA.
+- **Podpis lekarza** — bez `dist/` apka i tak nie ma co pokazać.
 
-Kolejność bez zmian: **prototyp** pokazuje możliwości (osobne repo/gałąź), **prawdziwy Krąg** czeka na te trzy rzeczy. Rekomendacja repo — niżej w rozmowie.
+Kolejność bez zmian: **prototyp** pokazuje możliwości (obecne repo), **prawdziwy Krąg** = osobne repo `krag-app` (PWA), które zakładam po wyborze hostingu (O-09).
+
+## 9. Checklista „must-have" przed publiczną rejestracją (z A2)
+
+Nic z tego nie jest kodem — to warunki prawne wejścia na produkcję, do zrobienia z prawnikiem (TOR 1.3):
+1. **DPIA** dla danych szczególnej kategorii (art. 35 ust. 2 lit. b) — szablon EDPB 2026 lub WP248.
+2. **Rejestr czynności przetwarzania** (art. 30).
+3. **Podstawa prawna: wyraźna zgoda** — art. 9 ust. 2 lit. a + art. 6 ust. 1 lit. a. Granularna, dobrowolna, udokumentowana, łatwa do wycofania; poprzedzona obowiązkiem informacyjnym (art. 13). **Uwaga: NIE art. 9 ust. 2 lit. d** — jego katalog obejmuje tylko cele polityczne/światopoglądowe/religijne/związkowe, nie zdrowotne.
+4. **DPA (umowa powierzenia)** z hostingiem UE.
+5. **Notice-and-action** (art. 16 DSA) + punkty kontaktowe (art. 11–12) + regulamin (art. 14). Non-profit mikro/mały podmiot ma zwolnienia z art. 20–24, ale art. 11–17 zostają.
+6. **Backup klucza E2E** (fraza BIP-39) + `navigator.storage.persist()`.
+7. **Analiza wyznaczenia IOD** (prawdopodobnie wymagany, art. 37).
+8. **Polityka prywatności** + procedura praw (usunięcie/eksport — lokalnie dla danych zdrowotnych).

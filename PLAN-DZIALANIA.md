@@ -24,8 +24,9 @@ KROK 0 (arkusz recenzencki 215 poz.) · KROK 1 (treść z danych) · KROK 4 (9 �
 - **[W] D3 — nazwa i ikona (O-01).** „Krąg” to nazwa robocza, do oddania środowisku.
 - **[W] D4 — czy 116 111 zostaje (O-06).** Linia dla dzieci na ekranie kryzysowym dla dorosłych.
 - **[W] O-03 — licencja Liverpool.** Odblokowuje interakcje ponad poziom klas (dziś baza to `AI_DRAFT`).
-- **[W] O-05 — Ida: zakładka vs asystent z każdego ekranu.**
-- **[W] O-09 / O-10 — backend, hosting, retencja i eksport danych (RODO art. 20).** Decyzja infrastrukturalna przed publikacją.
+- ~~**O-05 — Ida: zakładka vs asystent z każdego ekranu.**~~ **Rozstrzygnięte (K-28): Ida prowadzi** — obecna w całej apce, 3 poziomy, wdrożone w prototypie.
+- **[W] O-09 — lokalizacja hostingu (JEDYNA otwarta z backendu).** Stos wybrany researchem A2 (K-30): własny Postgres+API, Signal E2E, PWA, klucz lokalny+zaproszenie. Zostaje wybór miejsca: **Hetzner DE/FI** (najtaniej, ~4,50 €/mies.) vs **Warszawa (OVH/Scaleway)** (dane fizycznie w PL). Po decyzji zakładam `krag-app`.
+- **[W] O-10 — retencja i eksport (RODO art. 20).** Do domknięcia w checklistcie prawnej (`ARCHITEKTURA-K27.md §9`) przy DPIA.
 - **[W] Potwierdzić weryfikatora `prep-pl`** (kod ustawiłem na zakaźnika wg C.2 — do akceptacji).
 
 ## TOR 3 — Kod (moje, bez blokerów zewnętrznych)
