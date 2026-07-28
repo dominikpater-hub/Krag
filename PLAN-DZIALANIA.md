@@ -26,7 +26,7 @@ KROK 0 (arkusz recenzencki 215 poz.) · KROK 1 (treść z danych) · KROK 4 (9 �
 - **[W] O-03 — licencja Liverpool.** Odblokowuje interakcje ponad poziom klas (dziś baza to `AI_DRAFT`).
 - ~~**O-05 — Ida: zakładka vs asystent z każdego ekranu.**~~ **Rozstrzygnięte (K-28): Ida prowadzi** — obecna w całej apce, 3 poziomy, wdrożone w prototypie.
 - **[W] O-09 — lokalizacja hostingu.** Rekomendacja robocza [C]: **Scaleway Warszawa (WAW)** — dane fizycznie w PL (argument zaufania dla środowiska/mandatu GIPA), firma UE, poza CLOUD Act, ~4,99 €/mies. Plan B: **Hetzner DE/FI** (~4,50 €, najprościej). Do akceptacji właściciela — zmiana to jedna linijka w infrze.
-- **[C] Szkielet `krag-app` gotowy** (dostarczony jako zip): PWA — klucz lokalny + kod zaproszenia, pseudonim, fraza odzyskiwania, dziennik w IndexedDB, offline SW. Backend/Signal/moderacja jako TODO. **Do opublikowania jako osobne repo** (ta sesja jest związana z `ProjektKrag`, więc nowego repo nie utworzę zdalnie — właściciel tworzy `krag-app` i pushuje).
+- **[C] Szkielet `krag-app` OPUBLIKOWANY** → `github.com/dominikpater-hub/Krag-app` (branch main). PWA — klucz lokalny + kod zaproszenia, pseudonim, fraza odzyskiwania, dziennik w IndexedDB, offline SW. Backend/Signal/moderacja jako TODO. Następny krok kodu: schemat Postgres (minimalny rekord) + cienkie API pod Scaleway WAW.
 - **[W] O-10 — retencja i eksport (RODO art. 20).** Do domknięcia w checklistcie prawnej (`ARCHITEKTURA-K27.md §9`) przy DPIA.
 - **[W] Potwierdzić weryfikatora `prep-pl`** (kod ustawiłem na zakaźnika wg C.2 — do akceptacji).
 
