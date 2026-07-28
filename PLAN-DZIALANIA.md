@@ -25,7 +25,8 @@ KROK 0 (arkusz recenzencki 215 poz.) · KROK 1 (treść z danych) · KROK 4 (9 �
 - **[W] D4 — czy 116 111 zostaje (O-06).** Linia dla dzieci na ekranie kryzysowym dla dorosłych.
 - **[W] O-03 — licencja Liverpool.** Odblokowuje interakcje ponad poziom klas (dziś baza to `AI_DRAFT`).
 - ~~**O-05 — Ida: zakładka vs asystent z każdego ekranu.**~~ **Rozstrzygnięte (K-28): Ida prowadzi** — obecna w całej apce, 3 poziomy, wdrożone w prototypie.
-- **[W] O-09 — lokalizacja hostingu (JEDYNA otwarta z backendu).** Stos wybrany researchem A2 (K-30): własny Postgres+API, Signal E2E, PWA, klucz lokalny+zaproszenie. Zostaje wybór miejsca: **Hetzner DE/FI** (najtaniej, ~4,50 €/mies.) vs **Warszawa (OVH/Scaleway)** (dane fizycznie w PL). Po decyzji zakładam `krag-app`.
+- **[W] O-09 — lokalizacja hostingu.** Rekomendacja robocza [C]: **Scaleway Warszawa (WAW)** — dane fizycznie w PL (argument zaufania dla środowiska/mandatu GIPA), firma UE, poza CLOUD Act, ~4,99 €/mies. Plan B: **Hetzner DE/FI** (~4,50 €, najprościej). Do akceptacji właściciela — zmiana to jedna linijka w infrze.
+- **[C] Szkielet `krag-app` gotowy** (dostarczony jako zip): PWA — klucz lokalny + kod zaproszenia, pseudonim, fraza odzyskiwania, dziennik w IndexedDB, offline SW. Backend/Signal/moderacja jako TODO. **Do opublikowania jako osobne repo** (ta sesja jest związana z `ProjektKrag`, więc nowego repo nie utworzę zdalnie — właściciel tworzy `krag-app` i pushuje).
 - **[W] O-10 — retencja i eksport (RODO art. 20).** Do domknięcia w checklistcie prawnej (`ARCHITEKTURA-K27.md §9`) przy DPIA.
 - **[W] Potwierdzić weryfikatora `prep-pl`** (kod ustawiłem na zakaźnika wg C.2 — do akceptacji).
 
