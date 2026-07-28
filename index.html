@@ -611,6 +611,7 @@ button{font-family:inherit}
         <p class="lbl" data-i="pickArea"></p>
         <div class="geopick"></div></div>
       <div class="set"><div><div class="t" data-i="acceptInv"></div><div class="s" data-i="acceptInvS"></div></div><button class="sw on" data-sw></button></div>
+      <div class="set"><div><div class="t" data-i="mentorSw"></div><div class="s" data-i="mentorSwS"></div></div><button class="sw" id="swMentor"></button></div>
     </div>
     <p class="lbl" data-i="privacy"></p>
     <div class="card" style="padding:4px 16px">
@@ -853,6 +854,10 @@ var T={
  area:{pl:"Obszar",en:"Area",uk:"Район",ru:"Район",de:"Gegend",cs:"Oblast",sk:"Oblasť"},
  acceptInv:{pl:"Przyjmuję zaproszenia",en:"I accept invitations",uk:"Приймаю запрошення",ru:"Принимаю приглашения",de:"Ich nehme Einladungen an",cs:"Přijímám pozvání",sk:"Prijímam pozvania"},
  acceptInvS:{pl:"Bez tego nikt nie może napisać pierwszy",en:"Without this no one can write first",uk:"Без цього ніхто не напише першим",ru:"Без этого никто не напишет первым",de:"Sonst kann niemand zuerst schreiben",cs:"Jinak nikdo nemůže napsat první",sk:"Inak nikto nemôže napísať prvý"},
+ mentorSw:{pl:"Jestem wprowadzającym",en:"I am a buddy",uk:"Я провідник",ru:"Я проводник",de:"Ich bin Begleiter",cs:"Jsem průvodce",sk:"Som sprievodca"},
+ mentorSwS:{pl:"Inni widzą, że możesz towarzyszyć komuś na początku",en:"Others see you can support someone at the start",uk:"Інші бачать, що ви можете супроводжувати когось на початку",ru:"Другие видят, что вы можете сопровождать кого-то в начале",de:"Andere sehen, dass du jemanden am Anfang begleiten kannst",cs:"Ostatní vidí, že můžeš někoho na začátku doprovázet",sk:"Ostatní vidia, že môžeš niekoho na začiatku sprevádzať"},
+ mentorOn:{pl:"Ustaw, o czym możesz rozmawiać",en:"Set what you can talk about",uk:"Налаштуйте, про що можете говорити",ru:"Настройте, о чём можете говорить",de:"Lege fest, worüber du sprechen kannst",cs:"Nastav, o čem můžeš mluvit",sk:"Nastav, o čom môžeš hovoriť"},
+ mentorOff:{pl:"Nie jesteś już na liście wprowadzających",en:"You are no longer listed as a buddy",uk:"Вас більше немає у списку провідників",ru:"Вас больше нет в списке проводников",de:"Du bist nicht mehr als Begleiter gelistet",cs:"Už nejsi na seznamu průvodců",sk:"Už nie si na zozname sprievodcov"},
  privacy:{pl:"Prywatność",en:"Privacy",uk:"Приватність",ru:"Приватность",de:"Privatsphäre",cs:"Soukromí",sk:"Súkromie"},
  pin:{pl:"Kod przy otwarciu",en:"Passcode on open",uk:"Код при відкритті",ru:"Код при открытии",de:"Code beim Öffnen",cs:"Kód při otevření",sk:"Kód pri otvorení"},
  pinS:{pl:"Cztery cyfry za każdym razem",en:"Four digits every time",uk:"Чотири цифри щоразу",ru:"Четыре цифры каждый раз",de:"Vier Ziffern jedes Mal",cs:"Čtyři číslice pokaždé",sk:"Štyri číslice zakaždým"},
@@ -2893,7 +2898,11 @@ function setLang(c){lang=c;shownOrig={};apply();toast(LANGS.filter(function(l){r
 
 $$('#mcap .chip').forEach(function(c){c.addEventListener('click',function(){
   $$('#mcap .chip').forEach(function(x){x.classList.remove('on')});c.classList.add('on')})});
-$('#mentorGo').addEventListener('click',function(){toast(t('signUpBuddy'));go('krag');seg('k','osoby')});
+$('#mentorGo').addEventListener('click',function(){var s=$('#swMentor');if(s)s.classList.add('on');toast(t('signUpBuddy'));go('krag');seg('k','osoby')});
+$('#swMentor').addEventListener('click',function(){
+  var on=!this.classList.contains('on');this.classList.toggle('on',on);
+  if(on){toast(t('mentorOn'));go('mentor');}else{toast(t('mentorOff'));}
+});
 
 /* =========== K-28: IDA PROWADZI — L1 wejście + L3 przewodnik kontekstowy =========== */
 var ONB_PSEUDO=['Cichy Świt','Spokojna Rzeka','Wschodni Wiatr','Jasny Brzeg','Ciepły Kamień','Nocny Ogród','Daleki Ton','Miękkie Światło'];

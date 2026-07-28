@@ -65,9 +65,18 @@ Stos wybrany (K-30). Buduję kod niezależnie od bramek, ale na produkcję wchod
 1. **[C] Wiedza w Krag-app:** wczytanie `knowledge.json` (z podpisanego `dist/`), ścieżki, Trener wiedzy, mapa poradni, wyszukiwarka ARV + interakcje — port z prototypu.
 2. **[C] Ida prowadzi (3 poziomy)** w PWA — jak w prototypie (wejście, odprawa, przewodnik kontekstowy z twardą granicą „nie interpretuję Twoich wyników").
 3. **[C] Dziennik zdrowia** — już lokalny; dopiąć **eksport/usunięcie (RODO art. 20)**, pełną frazę **BIP-39**, `navigator.storage.persist()`, wyraźne ostrzeżenie o backupie.
-4. **[C] Rozmowy 1:1** — teraz realne: transport przez backend, treść E2E, zabezpieczenia K-26 (blokuj/zgłoś, warstwa kryzysowa, „↻ przetłumaczone z…").
-5. **[C] PWA dopięte:** manifest, service worker, push (iOS 16.4+ „dodaj do ekranu"), ikona enso (zrobione).
-6. **[T] Długi ogon języków** (KROK 2) i ręczny przegląd słownika (KROK 3) — praca tłumacza-człowieka, nie generuję zmyślonych tłumaczeń medycznych.
+4. **[C] Warstwa E2E po stronie klienta (Signal Protocol)** — NOWY, wydzielony krok:
+   a. integracja `libsignal-client` w PWA (generacja identity key + signed prekey + one-time prekeys **lokalnie**, publikacja tylko kluczy publicznych przez `POST /keys`);
+   b. nawiązanie sesji (pobranie paczki odbiorcy `GET /keys/:pseudonym`, model PreKeys);
+   c. szyfrowanie/odszyfrowanie wiadomości; backend przenosi tylko koperty (`/envelopes`);
+   d. przechowanie stanu sesji Signal lokalnie (IndexedDB), objęte backupem klucza;
+   e. audyt biblioteki + śledzenie CVE (dotyczy też Signala).
+5. **[C] Rozmowy 1:1** spięte z warstwą (4) i backendem (Faza 2): transport przez koperty, zabezpieczenia K-26 (blokuj/zgłoś, warstwa kryzysowa, „↻ przetłumaczone z…").
+6. **[C] PWA dopięte:** manifest, service worker, push (iOS 16.4+ „dodaj do ekranu"), ikona enso (zrobione).
+7. **[C] Profil: rola i status** — rola (plhiv/partner/bliska) + **tik „jestem wprowadzającym" (buddy)** dodany w prototypie; do przeniesienia do Krag-app.
+8. **[T] Długi ogon języków** (KROK 2) i ręczny przegląd słownika (KROK 3) — praca tłumacza-człowieka, nie generuję zmyślonych tłumaczeń medycznych.
+
+**Kandydat do decyzji — prywatne grupy rozmów.** Dziś kanon to rozmowy **1:1** (K-26, Signal). Grupy prywatne wymagają: (a) **decyzji konstytucyjnej** — kanał wieloosobowy przy wrażliwej grupie zwiększa ryzyko (moderacja trudniejsza, większa powierzchnia na nadużycia i deanonimizację); (b) **innej kryptografii** — grupowe E2E to **MLS (RFC 9420)**, nie Signal, cięższe i dojrzalsze SDK dopiero powstają (A2 rekomenduje MLS dopiero powyżej ~50 tys. użytkowników). Status: **do decyzji właściciela** (patrz dziennik decyzji, propozycja P-01). Nie buduję bez zielonego światła.
 
 **Definicja done Fazy 3:** Krag-app pokazuje **podpisaną** wiedzę, prowadzi dziennik lokalnie z backupem/eksportem, umożliwia szyfrowane rozmowy 1:1 — wszystko na anonimowym koncie.
 
