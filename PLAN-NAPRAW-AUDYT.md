@@ -6,7 +6,7 @@ Właściciele: **🤖** robię w kodzie teraz (jednoznaczne, bez osądu medyczne
 
 Zasada nadrzędna (z audytów): nie dopisuję ani nie „poprawiam" faktów medycznych tak, by uchodziły za zweryfikowane — bo to jest dokładnie ta patologia, przed którą broni się projekt. Mogę **wycofać** błędne brzmienie i **przeredagować nadinterpretację** na ostrożniejszą prawdę; nowej treści autorytatywnej i podpisów nie tworzę.
 
-## Faza 1 — Życie i ścieżka ratunkowa (🤖, najpierw)
+## Faza 1 — Życie i ścieżka ratunkowa ✅ ZROBIONE (commit 15194b9)
 
 | Id | Co | Działanie |
 |---|---|---|
@@ -22,7 +22,7 @@ Zasada nadrzędna (z audytów): nie dopisuję ani nie „poprawiam" faktów medy
 | W-4/N-4 | 116 111 na liście kryzysowej | usunąć (decyzja z GENESIS) |
 | M-1 | Świętokrzyskie: pusty wynik dyżuru PEP | komunikat „brak dyżuru w województwie, najbliższy: …" zamiast pustki (jeśli runway; inaczej Faza 3) |
 
-## Faza 2 — Prawda o zaufaniu (🤖)
+## Faza 2 — Prawda o zaufaniu ✅ ZROBIONE (commit 15194b9)
 
 | Id | Co | Działanie |
 |---|---|---|
