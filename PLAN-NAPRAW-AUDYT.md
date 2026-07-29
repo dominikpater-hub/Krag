@@ -32,7 +32,10 @@ Zasada nadrzędna (z audytów): nie dopisuję ani nie „poprawiam" faktów medy
 | R-9 | zdanie „nie zgaduję" znika w de/cs/sk | dopisać do `IDA_HELLO` |
 | R-6 | granica CD4/wyrób medyczny działa tylko po polsku, na 13 frazach | reguła semantyczna (zaimek dzierżawczy + marker wyniku / czasownik decyzyjny) w obsługiwanych językach + testy |
 
-## Faza 3 — Integralność eksportu i buildu (🤖)
+## Faza 3 — Integralność eksportu i buildu ✅ ZROBIONE (commit 23d20f2)
+
+Weryfikacja: build zielony, testy bramek 5/5, routing Idy 19/19 na wstrzykniętych 223 faktach, parse `index.html` czysty. **Zostaje M-1** (komunikat „najbliższy dyżur PEP" dla świętokrzyskiego) — osobny follow-up w renderze miejsc.
+
 
 | Id | Co |
 |---|---|
