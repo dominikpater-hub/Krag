@@ -71,7 +71,7 @@ Stos wybrany (K-30). Buduję kod niezależnie od bramek, ale na produkcję wchod
    c. szyfrowanie/odszyfrowanie wiadomości; backend przenosi tylko koperty (`/envelopes`);
    d. przechowanie stanu sesji Signal lokalnie (IndexedDB), objęte backupem klucza;
    e. audyt biblioteki + śledzenie CVE (dotyczy też Signala).
-5. **[C] ✅ Spięcie klient↔backend (rdzeń 1:1):** `lib/api.js` + `lib/identity.js`; test integracyjny na prawdziwym serwerze (pg-mem) przechodzi pełną pętlę — rejestracja z zaproszenia → logowanie kluczem → publikacja kluczy → zaszyfrowana koperta tam i z powrotem → zgłoszenie. **5/5 zielone.** Zostaje: podpięcie do UI rozmów w PWA + zabezpieczenia K-26 (blokuj/zgłoś, warstwa kryzysowa, „↻ przetłumaczone z…") + deploy (O-09).
+5. **[C] ✅ Działające rozmowy 1:1:** aplikacja spięta z backendem — wejście z zaproszenia → logowanie kluczem → ekran rozmów (lista/wątek/kompozytor) → wiadomości szyfrowane E2E przez prawdziwy serwer. Zweryfikowane: 5/5 testów serwera + **test E2E w przeglądarce** (dwie sesje wymieniają zaszyfrowaną wiadomość). Zostaje do pilotażu: zabezpieczenia K-26 (warstwa kryzysowa, „↻ przetłumaczone z…"), wymiana interim-crypto na libsignal, **deploy (O-09)**. Pełna lista: `TODO-KRAG.md`.
 6. **[C] PWA dopięte:** manifest, service worker, push (iOS 16.4+ „dodaj do ekranu"), ikona enso (zrobione).
 7. **[C] Profil: rola i status** — rola (plhiv/partner/bliska) + **tik „jestem wprowadzającym" (buddy)** dodany w prototypie; do przeniesienia do Krag-app.
 8. **[T] Długi ogon języków** (KROK 2) i ręczny przegląd słownika (KROK 3) — praca tłumacza-człowieka, nie generuję zmyślonych tłumaczeń medycznych.
