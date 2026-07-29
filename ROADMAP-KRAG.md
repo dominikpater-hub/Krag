@@ -71,7 +71,7 @@ Stos wybrany (K-30). Buduję kod niezależnie od bramek, ale na produkcję wchod
    c. szyfrowanie/odszyfrowanie wiadomości; backend przenosi tylko koperty (`/envelopes`);
    d. przechowanie stanu sesji Signal lokalnie (IndexedDB), objęte backupem klucza;
    e. audyt biblioteki + śledzenie CVE (dotyczy też Signala).
-5. **[C] Rozmowy 1:1** spięte z warstwą (4) i backendem (Faza 2): transport przez koperty, zabezpieczenia K-26 (blokuj/zgłoś, warstwa kryzysowa, „↻ przetłumaczone z…").
+5. **[C] ✅ Spięcie klient↔backend (rdzeń 1:1):** `lib/api.js` + `lib/identity.js`; test integracyjny na prawdziwym serwerze (pg-mem) przechodzi pełną pętlę — rejestracja z zaproszenia → logowanie kluczem → publikacja kluczy → zaszyfrowana koperta tam i z powrotem → zgłoszenie. **5/5 zielone.** Zostaje: podpięcie do UI rozmów w PWA + zabezpieczenia K-26 (blokuj/zgłoś, warstwa kryzysowa, „↻ przetłumaczone z…") + deploy (O-09).
 6. **[C] PWA dopięte:** manifest, service worker, push (iOS 16.4+ „dodaj do ekranu"), ikona enso (zrobione).
 7. **[C] Profil: rola i status** — rola (plhiv/partner/bliska) + **tik „jestem wprowadzającym" (buddy)** dodany w prototypie; do przeniesienia do Krag-app.
 8. **[T] Długi ogon języków** (KROK 2) i ręczny przegląd słownika (KROK 3) — praca tłumacza-człowieka, nie generuję zmyślonych tłumaczeń medycznych.
