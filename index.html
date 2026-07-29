@@ -598,10 +598,11 @@ button{font-family:inherit}
   <section class="screen" id="sc-ja">
     <div class="card" style="text-align:center;padding:22px">
       <div class="hero-av" id="meAv"></div>
-      <div style="font-family:var(--serif);font-size:28px">wrzesień_11</div>
+      <div style="font-family:var(--serif);font-size:28px" id="meName">wrzesień_11</div>
       <div style="font-size:12px;color:var(--tx-3);margin-top:4px" id="meSince"></div>
       <div style="margin-top:10px" id="meLangs"></div>
     </div>
+    <div class="card" id="accountCard" style="display:flex;align-items:center;gap:12px"></div>
     <div class="card" data-nav="uwagi" style="cursor:pointer;border-color:rgba(126,155,119,.35);background:rgba(126,155,119,.06);display:flex;align-items:center;gap:12px">
       <span style="font-size:20px;color:var(--moss)">✎</span>
       <div style="flex:1"><div class="t" data-i="uwagiCardT"></div><div class="s" data-i="uwagiCardS"></div></div>
@@ -1075,7 +1076,7 @@ function go(k){
   $('#title').textContent=title(k);
   $('#back').style.display=TABS.indexOf(k)===-1?'block':'none';
   $('#view').scrollTop=0;cur=k;
-  if(k==='mapa'&&typeof renderMapa==='function')renderMapa();  if(k==='trenerw'&&typeof renderTrenerw==='function')renderTrenerw();  if(k==='uwagi'&&typeof renderUwagi==='function')renderUwagi();
+  if(k==='mapa'&&typeof renderMapa==='function')renderMapa();  if(k==='trenerw'&&typeof renderTrenerw==='function')renderTrenerw();  if(k==='uwagi'&&typeof renderUwagi==='function')renderUwagi();  if(k==='ja'&&typeof renderAccount==='function')renderAccount();
 }
 
 /* === MAPA / GDZIE SIĘ ZGŁOSIĆ (dane placówek: KC ds. AIDS / gov.pl) === */
@@ -3093,12 +3094,56 @@ function onbAccountHtml(P){
     '<button class="btn ghost" id="onbLogin" style="margin-top:10px">'+(P?'Mam już konto — zaloguj':'I already have an account — sign in')+'</button>'+
     '<button class="btn ghost" id="onbBack" style="margin-top:16px">'+(P?'Wróć':'Back')+'</button>';
 }
+// ——— Klient kont/synchronizacji (na żywym serwerze ACCOUNTS_API) ———
+function krToken(){try{return localStorage.getItem('krag.token')}catch(e){return null}}
+function krDoc(){try{return JSON.parse(localStorage.getItem('krag.doc')||'{}')}catch(e){return{}}}
+function krSaveDoc(d){try{localStorage.setItem('krag.doc',JSON.stringify(d||{}))}catch(e){}}
+function acctGet(path,token){return fetch(ACCOUNTS_API+path,{headers:token?{authorization:'Bearer '+token}:{}})
+  .then(function(r){return r.json().catch(function(){return{}}).then(function(d){if(!r.ok)throw new Error(d.error||('HTTP '+r.status));return d})})}
+function acctPut(path,body,token){return fetch(ACCOUNTS_API+path,{method:'PUT',headers:{'content-type':'application/json',authorization:'Bearer '+token},body:JSON.stringify(body)})
+  .then(function(r){return r.json().catch(function(){return{}}).then(function(d){if(!r.ok)throw new Error(d.error||('HTTP '+r.status));return d})})}
+function pushDoc(extra){
+  var t=krToken();if(!t)return Promise.resolve(null);
+  var d=krDoc();if(extra)for(var k in extra)d[k]=extra[k];
+  if(onbPseudo)d.pseudonym=onbPseudo; if(typeof lang!=='undefined')d.lang=lang;
+  krSaveDoc(d);
+  return acctPut('/sync',{data:d,updatedAt:new Date().toISOString()},t);
+}
+function pullDoc(){
+  var t=krToken();if(!t)return Promise.resolve(null);
+  return acctGet('/sync',t).then(function(res){
+    var d=(res&&res.data)||{};krSaveDoc(d);
+    if(d.pseudonym)onbPseudo=d.pseudonym;
+    return d;
+  });
+}
+function logoutAccount(){try{localStorage.removeItem('krag.token');localStorage.removeItem('krag.email');localStorage.setItem('krag.mode','anon')}catch(e){}}
+if(typeof window!=='undefined')window.KRAG={pushDoc:pushDoc,pullDoc:pullDoc,token:krToken,doc:krDoc,logout:logoutAccount};
+function renderAccount(){
+  var el=$('#accountCard'); if(!el)return; var P=lang==='pl';
+  var tok=krToken(), email='', ps='';
+  try{email=localStorage.getItem('krag.email')||'';}catch(e){}
+  try{ps=(krDoc().pseudonym)||localStorage.getItem('krag.pseudo')||'';}catch(e){}
+  var nm=$('#meName'); if(nm&&ps)nm.textContent=ps;
+  if(tok){
+    el.innerHTML='<span style="font-size:20px;color:var(--moss)">✓</span><div style="flex:1"><div class="t">'+(P?'Zalogowano':'Signed in')+(email?' · '+escapeHtml(email):'')+'</div><div class="s" style="color:var(--tx-3)">'+(P?'Dane synchronizują się między urządzeniami.':'Your data syncs across devices.')+'</div></div><button class="btn ghost sm" id="acctLogout" style="width:auto;padding:8px 14px">'+(P?'Wyloguj':'Log out')+'</button>';
+    $('#acctLogout').onclick=function(){logoutAccount();renderAccount();toast(P?'Wylogowano':'Logged out')};
+  }else{
+    el.innerHTML='<span style="font-size:20px;color:var(--moss)">◎</span><div style="flex:1"><div class="t">'+(P?'Korzystasz bez konta':'Using without an account')+'</div><div class="s" style="color:var(--tx-3)">'+(P?'Dane zostają tylko na tym urządzeniu.':'Data stays on this device only.')+'</div></div><button class="btn ghost sm" id="acctLogin" style="width:auto;padding:8px 14px">'+(P?'Zaloguj':'Sign in')+'</button>';
+    $('#acctLogin').onclick=function(){openOnboarding();setTimeout(function(){renderOnboarding('account')},60)};
+  }
+}
+
 function authGo(path,P){
   var em=($('#onbEmail')||{}).value||'', pw=($('#onbPass')||{}).value||'';
   if(!em||!pw){acctErr(P?'Podaj e-mail i hasło.':'Enter email and password.');return}
   acctErr(P?'Łączę…':'Connecting…');
   acct(path,{email:em,password:pw,pseudonym:onbPseudo||randPseudo()}).then(function(res){
-    saveLocal('account',res.pseudonym||onbPseudo,res.token,em);closeOnboarding();
+    saveLocal('account',res.pseudonym||onbPseudo,res.token,em);
+    // Po wejściu: pobierz dokument z serwera; jeśli pusty (nowe konto), wypchnij lokalny.
+    return pullDoc().then(function(d){
+      if(!d||!Object.keys(d).length)return pushDoc({pseudonym:res.pseudonym||onbPseudo});
+    }).then(function(){closeOnboarding()});
   }).catch(function(e){
     acctErr((P?'Nie udało się: ':'Failed: ')+(/Failed to fetch|NetworkError|HTTP 0/.test(e.message)
       ?(P?'serwer kont niedostępny — możesz wejść bez konta':'accounts server unavailable — you can enter without an account'):e.message));
@@ -3150,7 +3195,10 @@ function paintOnbReplay(){
   var r=$('#onbReplay');if(r)r.onclick=function(){openOnboarding()};
 }
 
-apply();go('ida');openOnboarding();
+apply();go('ida');
+// Powitanie pokazujemy tylko nowym: kto ma konto albo wybrał tryb anonimowy, wchodzi od razu.
+try{ if(!localStorage.getItem('krag.token') && localStorage.getItem('krag.mode')!=='anon') openOnboarding(); }
+catch(e){ openOnboarding(); }
 })();
 </script>
 </body>
