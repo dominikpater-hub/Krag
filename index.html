@@ -343,6 +343,11 @@ button{font-family:inherit}
 .onb-list li{position:relative;padding:7px 0 7px 22px;font-size:13.5px;color:var(--tx-2);line-height:1.5}
 .onb-list li::before{content:'';position:absolute;left:2px;top:14px;width:6px;height:6px;border-radius:50%;background:var(--moss)}
 .onb-spacer{flex:1 0 16px}
+.onb-input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px 14px;color:var(--tx);font-size:16px;font-family:var(--serif)}
+.onb-input:focus{outline:none;border-color:var(--moss)}
+.onb-mut{color:var(--tx-3);font-size:13px}
+.onb-or{text-align:center;color:var(--tx-3);font-size:12px;margin:14px 0 10px;position:relative}
+.onb-err{color:#d98a4b;font-size:13px;min-height:18px;margin:8px 0 0}
 .askida{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:rgba(126,155,119,.08);border:1px solid rgba(126,155,119,.28);border-radius:13px;padding:11px 14px;margin:0 0 16px;cursor:pointer;color:var(--tx-2);font-size:12.5px;line-height:1.4}
 .askida .ai{color:var(--moss);font-size:15px;flex:0 0 auto}
 .askida b{color:var(--tx);font-weight:600}
@@ -3012,38 +3017,88 @@ $('#swMentor').addEventListener('click',function(){
 
 /* =========== K-28: IDA PROWADZI — L1 wejście + L3 przewodnik kontekstowy =========== */
 var ONB_PSEUDO=['Cichy Świt','Spokojna Rzeka','Wschodni Wiatr','Jasny Brzeg','Ciepły Kamień','Nocny Ogród','Daleki Ton','Miękkie Światło'];
-function renderOnboarding(){
-  var P=lang==='pl';
-  var ps=ONB_PSEUDO[Math.floor(Math.random()*ONB_PSEUDO.length)];
-  var h;
-  if(P){
-    h='<div class="onb-badge">◈</div>'+
-    '<h2 class="onb-h">Cześć. Jestem Ida<br>i prowadzę Krąg.</h2>'+
-    '<p class="onb-p">Krąg to <b>miejsce wsparcia między ludźmi</b>, którzy żyją z HIV albo są blisko kogoś takiego. Nie jestem lekarzem i nie zastępuję poradni — <b>objaśniam pojęcia i prowadzę</b>, ale nigdy nie oceniam Twoich wyników.</p>'+
-    '<p class="onb-p">Wchodzisz tu <b>bez nazwiska, maila i numeru</b>. To, co zapiszesz o swoim zdrowiu, zostaje na tym telefonie — Krąg tego nie widzi.</p>'+
-    '<p class="lbl">Twój pseudonim w Kręgu</p>'+
-    '<div class="onb-card"><span class="onb-pseudo">'+ps+'</span><br><button class="btn ghost sm" id="onbReroll" style="margin-top:12px;width:auto;padding:8px 14px">Wylosuj inny</button></div>'+
-    '<p class="onb-p">Do Kręgu wchodzi się <b>z zaproszenia</b> — ktoś, kto już tu jest, daje Ci kod. Ty też będziesz mógł zaprosić kogoś, komu ufasz.</p>'+
-    '<ul class="onb-list"><li>Rozmowa jest tylko między dwiema osobami i ukrywa, kim jesteście.</li><li>Zawsze możesz zablokować i zgłosić.</li><li>Kiedy czegoś nie wiem, mówię to wprost — nie zgaduję.</li></ul>'+
+// Adres backendu kont (pusty = ten sam origin; dev ustawia window.KRAG_ACCOUNTS_API).
+var ACCOUNTS_API=(typeof window!=='undefined'&&window.KRAG_ACCOUNTS_API)||'';
+var onbPseudo='';
+function randPseudo(){return ONB_PSEUDO[Math.floor(Math.random()*ONB_PSEUDO.length)]}
+function saveLocal(mode,pseudo,token,email){try{
+  localStorage.setItem('krag.mode',mode);localStorage.setItem('krag.pseudo',pseudo||'');
+  if(token)localStorage.setItem('krag.token',token);else localStorage.removeItem('krag.token');
+  if(email)localStorage.setItem('krag.email',email);
+}catch(e){}}
+function acct(path,body){
+  return fetch(ACCOUNTS_API+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.json().catch(function(){return{}}).then(function(d){if(!r.ok)throw new Error(d.error||('HTTP '+r.status));return d})});
+}
+function acctErr(m){var e=$('#onbErr');if(e)e.textContent=m||''}
+
+function onbIntroHtml(P){
+  return '<div class="onb-badge">◈</div>'+
+  (P
+   ?'<h2 class="onb-h">Cześć. Jestem Ida,<br>Twoja przewodniczka po Kręgu.</h2>'+
+    '<p class="onb-p">Krąg to <b>miejsce wsparcia między ludźmi</b>, którzy żyją z HIV albo są blisko kogoś takiego. Pomagam Ci się tu odnaleźć — <b>tłumaczę pojęcia i podpowiadam, dokąd pójść</b>.</p>'+
+    '<p class="lbl">Jak mam się do Ciebie zwracać?</p>'+
+    '<div class="onb-card"><input id="onbPseudoIn" class="onb-input" value="'+escapeHtml(onbPseudo)+'" maxlength="24" autocomplete="off" spellcheck="false"><button class="btn ghost sm" id="onbReroll" style="margin-top:10px;width:auto;padding:8px 14px">Podpowiedz inny</button></div>'+
+    '<p class="onb-p onb-mut">Możesz założyć konto, żeby mieć swoje dane na każdym urządzeniu — albo wejść bez konta i zostawić je na tym telefonie. Anonimowo lub nie: Ty decydujesz.</p>'+
     '<div class="onb-spacer"></div>'+
-    '<button class="btn" id="onbGo">Wejdź do Kręgu</button>'+
-    '<p class="note" style="text-align:center;margin-top:14px">To prototyp — pokazuje, jak Krąg prowadzi, na przykładowych danych.</p>';
+    '<button class="btn" id="onbAcct">Utwórz konto lub zaloguj</button>'+
+    '<button class="btn ghost" id="onbAnon" style="margin-top:10px">Wejdź bez konta</button>'+
+    '<ul class="onb-list" style="margin-top:16px"><li>Zawsze możesz zablokować i zgłosić.</li><li>Kiedy czegoś nie wiem, mówię wprost — nie zgaduję.</li></ul>'+
+    '<p class="note" style="text-align:center">Krąg nie ocenia Twoich wyników — od tego jest lekarz. To prototyp, na przykładowych danych.</p>'
+   :'<h2 class="onb-h">Hi. I am Ida,<br>your guide to the Circle.</h2>'+
+    '<p class="onb-p">The Circle is a <b>place of support between people</b> living with HIV or close to someone who is. I help you find your way — <b>I explain concepts and point you where to go</b>.</p>'+
+    '<p class="lbl">What should I call you?</p>'+
+    '<div class="onb-card"><input id="onbPseudoIn" class="onb-input" value="'+escapeHtml(onbPseudo)+'" maxlength="24" autocomplete="off" spellcheck="false"><button class="btn ghost sm" id="onbReroll" style="margin-top:10px;width:auto;padding:8px 14px">Suggest another</button></div>'+
+    '<p class="onb-p onb-mut">Create an account to keep your data on every device — or enter without one and keep it on this phone. Anonymous or not: your call.</p>'+
+    '<div class="onb-spacer"></div>'+
+    '<button class="btn" id="onbAcct">Create account or sign in</button>'+
+    '<button class="btn ghost" id="onbAnon" style="margin-top:10px">Enter without an account</button>'+
+    '<ul class="onb-list" style="margin-top:16px"><li>You can always block and report.</li><li>When I do not know something, I say so — I do not guess.</li></ul>'+
+    '<p class="note" style="text-align:center">The Circle does not judge your results — a doctor does. This is a prototype, on sample data.</p>');
+}
+function onbAccountHtml(P){
+  return '<div class="onb-badge">◈</div>'+
+  (P
+   ?'<h2 class="onb-h">Twoje konto</h2>'+
+    '<p class="onb-p">Z kontem Twój dziennik i ustawienia są na każdym urządzeniu. Możesz je zmienić lub usunąć w każdej chwili.</p>'
+   :'<h2 class="onb-h">Your account</h2>'+
+    '<p class="onb-p">With an account your journal and settings are on every device. You can change or delete it anytime.</p>')+
+    '<button class="btn" id="onbGoogle">'+(P?'Kontynuuj z Google':'Continue with Google')+'</button>'+
+    '<p class="onb-or">'+(P?'albo e-mailem':'or with email')+'</p>'+
+    '<input id="onbEmail" class="onb-input" type="email" placeholder="'+(P?'e-mail':'email')+'" autocomplete="email">'+
+    '<input id="onbPass" class="onb-input" type="password" placeholder="'+(P?'hasło':'password')+'" autocomplete="current-password" style="margin-top:8px">'+
+    '<div class="onb-err" id="onbErr"></div>'+
+    '<button class="btn" id="onbRegister">'+(P?'Utwórz konto':'Create account')+'</button>'+
+    '<button class="btn ghost" id="onbLogin" style="margin-top:10px">'+(P?'Mam już konto — zaloguj':'I already have an account — sign in')+'</button>'+
+    '<button class="btn ghost" id="onbBack" style="margin-top:16px">'+(P?'Wróć':'Back')+'</button>';
+}
+function authGo(path,P){
+  var em=($('#onbEmail')||{}).value||'', pw=($('#onbPass')||{}).value||'';
+  if(!em||!pw){acctErr(P?'Podaj e-mail i hasło.':'Enter email and password.');return}
+  acctErr(P?'Łączę…':'Connecting…');
+  acct(path,{email:em,password:pw,pseudonym:onbPseudo||randPseudo()}).then(function(res){
+    saveLocal('account',res.pseudonym||onbPseudo,res.token,em);closeOnboarding();
+  }).catch(function(e){
+    acctErr((P?'Nie udało się: ':'Failed: ')+(/Failed to fetch|NetworkError|HTTP 0/.test(e.message)
+      ?(P?'serwer kont niedostępny — możesz wejść bez konta':'accounts server unavailable — you can enter without an account'):e.message));
+  });
+}
+function renderOnboarding(mode){
+  var P=lang==='pl'; mode=mode||'intro';
+  if(!onbPseudo)onbPseudo=randPseudo();
+  $('#onbIn').innerHTML=(mode==='account')?onbAccountHtml(P):onbIntroHtml(P);
+  if(mode==='account'){
+    $('#onbBack').onclick=function(){renderOnboarding('intro')};
+    $('#onbRegister').onclick=function(){authGo('/auth/register',P)};
+    $('#onbLogin').onclick=function(){authGo('/auth/login',P)};
+    $('#onbGoogle').onclick=function(){acctErr(P?'Logowanie Google podłączymy przy uruchomieniu serwera kont.':'Google sign-in connects once the accounts server is live.')};
   }else{
-    h='<div class="onb-badge">◈</div>'+
-    '<h2 class="onb-h">Hi. I am Ida,<br>and I guide the Circle.</h2>'+
-    '<p class="onb-p">The Circle is a <b>place of support between people</b> living with HIV or close to someone who is. I am not a doctor and do not replace a clinic — <b>I explain concepts and guide you</b>, but I never judge your results.</p>'+
-    '<p class="onb-p">You enter <b>with no name, email or number</b>. Whatever you note about your health stays on this phone — the Circle does not see it.</p>'+
-    '<p class="lbl">Your nickname in the Circle</p>'+
-    '<div class="onb-card"><span class="onb-pseudo">'+ps+'</span><br><button class="btn ghost sm" id="onbReroll" style="margin-top:12px;width:auto;padding:8px 14px">Draw another</button></div>'+
-    '<p class="onb-p">You join the Circle <b>by invitation</b> — someone already here gives you a code. You will be able to invite someone you trust too.</p>'+
-    '<ul class="onb-list"><li>A conversation is only between two people and hides who you are.</li><li>You can always block and report.</li><li>When I do not know something, I say so — I do not guess.</li></ul>'+
-    '<div class="onb-spacer"></div>'+
-    '<button class="btn" id="onbGo">Enter the Circle</button>'+
-    '<p class="note" style="text-align:center;margin-top:14px">This is a prototype — it shows how the Circle guides you, on sample data.</p>';
+    var inp=$('#onbPseudoIn'); if(inp)inp.oninput=function(){onbPseudo=inp.value};
+    $('#onbReroll').onclick=function(){onbPseudo=randPseudo();var i=$('#onbPseudoIn');if(i)i.value=onbPseudo};
+    $('#onbAcct').onclick=function(){renderOnboarding('account')};
+    $('#onbAnon').onclick=function(){saveLocal('anon',onbPseudo||randPseudo(),null);closeOnboarding()};
   }
-  $('#onbIn').innerHTML=h;
-  $('#onbReroll').onclick=function(){renderOnboarding()};
-  $('#onbGo').onclick=function(){closeOnboarding()};
+  var ov=$('#onbov'); if(ov)ov.scrollTop=0;
 }
 function openOnboarding(){renderOnboarding();$('#onbov').classList.add('on');$('#onbov').scrollTop=0}
 function closeOnboarding(){$('#onbov').classList.remove('on');go('ida')}
