@@ -34,7 +34,9 @@ Zasada nadrzędna (z audytów): nie dopisuję ani nie „poprawiam" faktów medy
 
 ## Faza 3 — Integralność eksportu i buildu ✅ ZROBIONE (commit 23d20f2)
 
-Weryfikacja: build zielony, testy bramek 5/5, routing Idy 19/19 na wstrzykniętych 223 faktach, parse `index.html` czysty. **Zostaje M-1** (komunikat „najbliższy dyżur PEP" dla świętokrzyskiego) — osobny follow-up w renderze miejsc.
+Weryfikacja: build zielony, testy bramek 5/5, routing Idy 19/19 na wstrzykniętych 223 faktach, parse `index.html` czysty. **M-1 zrobione** (commit 756718b): brak dyżuru PEP w województwie → aplikacja wskazuje najbliższy konkretny dyżur (BFS po sąsiedztwie; świętokrzyskie → Łódź).
+
+**Cały wykonalny kod z trzech audytów jest wprowadzony.** Otwarte zostaje tylko to, co wymaga ludzi (Faza 4) i świadomie odłożone (K-2).
 
 
 | Id | Co |
