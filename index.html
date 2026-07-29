@@ -1091,6 +1091,37 @@ function placeCard(p){
   if(w.length)h+='<div class="pwarn">'+w.join('<br>')+'</div>';
   h+='</div>';return h;
 }
+// Sąsiedztwo województw — do wskazania najbliższego dyżuru PEP, gdy w danym go brak (M-1).
+var VOIV_NEIGH={
+ 'dolnośląskie':['lubuskie','wielkopolskie','opolskie'],
+ 'kujawsko-pomorskie':['pomorskie','warmińsko-mazurskie','mazowieckie','łódzkie','wielkopolskie'],
+ 'lubelskie':['podkarpackie','świętokrzyskie','mazowieckie','podlaskie'],
+ 'lubuskie':['zachodniopomorskie','wielkopolskie','dolnośląskie'],
+ 'łódzkie':['wielkopolskie','kujawsko-pomorskie','mazowieckie','świętokrzyskie','śląskie','opolskie'],
+ 'małopolskie':['śląskie','świętokrzyskie','podkarpackie'],
+ 'mazowieckie':['warmińsko-mazurskie','podlaskie','lubelskie','świętokrzyskie','łódzkie','kujawsko-pomorskie'],
+ 'opolskie':['dolnośląskie','wielkopolskie','łódzkie','śląskie'],
+ 'podkarpackie':['małopolskie','świętokrzyskie','lubelskie'],
+ 'podlaskie':['warmińsko-mazurskie','mazowieckie','lubelskie'],
+ 'pomorskie':['zachodniopomorskie','wielkopolskie','kujawsko-pomorskie','warmińsko-mazurskie'],
+ 'śląskie':['opolskie','łódzkie','świętokrzyskie','małopolskie'],
+ 'świętokrzyskie':['łódzkie','mazowieckie','lubelskie','podkarpackie','małopolskie','śląskie'],
+ 'warmińsko-mazurskie':['pomorskie','kujawsko-pomorskie','mazowieckie','podlaskie'],
+ 'wielkopolskie':['lubuskie','zachodniopomorskie','pomorskie','kujawsko-pomorskie','łódzkie','opolskie','dolnośląskie'],
+ 'zachodniopomorskie':['pomorskie','wielkopolskie','lubuskie']
+};
+function nearestPep(from){
+  var seen={},queue=[from];seen[from]=1;   // BFS po sąsiadach; pierwszy czynny dyżur PEP wygrywa
+  while(queue.length){
+    var v=queue.shift();
+    if(v!==from){
+      var hit=PLACES.filter(function(p){return p.voiv===v&&p.kind==='DYZUR_PEP'&&p.status!=='ZAWIESZONY'})[0];
+      if(hit)return hit;
+    }
+    (VOIV_NEIGH[v]||[]).forEach(function(n){if(!seen[n]){seen[n]=1;queue.push(n)}});
+  }
+  return null;
+}
 function renderMapa(){
   var el=$('#mapaBody');if(!el)return;var P=lang==='pl';
   var voivs=VOIV_ALL.filter(function(v){return PLACES.some(function(p){return p.voiv===v})});
@@ -1106,7 +1137,14 @@ function renderMapa(){
              ['PKD',P?'Test — PKD (bezpłatnie, anonimowo)':'Test — PKD (free, anonymous)'],
              ['PORADNIA_ARV',P?'Leczenie — poradnia ARV':'Treatment — ARV clinic']];
   var missing=ORDER.filter(function(o){return !here.some(function(p){return p.kind===o[0]&&p.status!=='ZAWIESZONY'})});
-  var gap=missing.length?'<div class="pwarn" style="margin:0 0 10px">'+(P?'Brak w tym województwie: ':'Missing in this region: ')+missing.map(function(m){return m[1].split(' —')[0]}).join(', ')+(P?'. Trzeba jechać do sąsiedniego.':'. You must travel to a neighbouring one.')+'</div>':'';
+  var gap=missing.length?'<div class="pwarn" style="margin:0 0 10px">'+(P?'Brak w tym województwie: ':'Missing in this region: ')+missing.map(function(m){return m[1].split(' —')[0]}).join(', ')+'.</div>':'';
+  // M-1: dyżur PEP to ścieżka z zegarem — zamiast samej pustki wskaż NAJBLIŻSZY konkretny dyżur.
+  if(missing.some(function(m){return m[0]==='DYZUR_PEP'})){
+    var np=nearestPep(mapaVoiv);
+    gap+=np
+      ?'<div class="pwarn" style="margin:0 0 10px"><b>'+(P?'Najbliższy dyżur PEP: ':'Nearest PEP duty: ')+np.city+' ('+np.voiv+')</b><br>'+np.name+(np.phone&&np.phone.length?' · '+np.phone[0]:'')+'<br>'+(P?'Zadzwoń przed wyjazdem. Liczy się czas — nie czekaj do jutra.':'Call before you go. Time matters — do not wait until tomorrow.')+'</div>'
+      :'<div class="pwarn" style="margin:0 0 10px">'+(P?'Najbliższego dyżuru PEP szukaj w sąsiednim województwie — zadzwoń na 800 888 448 (infolinia HIV/AIDS).':'Find the nearest PEP duty in a neighbouring region — call 800 888 448.')+'</div>';
+  }
   var nat=PLACES.filter(function(p){return p.kind==='TELEFON'||p.kind==='PORADNIA_ONLINE'});
   var orgs=PLACES.filter(function(p){return p.kind==='ORGANIZACJA'});
   el.innerHTML=
