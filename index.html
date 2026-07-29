@@ -3029,6 +3029,8 @@ $('#swMentor').addEventListener('click',function(){
 var ONB_PSEUDO=['Cichy Świt','Spokojna Rzeka','Wschodni Wiatr','Jasny Brzeg','Ciepły Kamień','Nocny Ogród','Daleki Ton','Miękkie Światło'];
 // Adres backendu kont (pusty = ten sam origin; dev ustawia window.KRAG_ACCOUNTS_API).
 var ACCOUNTS_API=(typeof window!=='undefined'&&window.KRAG_ACCOUNTS_API)||'';
+// Google OAuth Client ID (publiczny). Backend musi mieć ten sam w GOOGLE_CLIENT_ID.
+var GOOGLE_CLIENT_ID=(typeof window!=='undefined'&&window.KRAG_GOOGLE_CLIENT_ID)||'539656658638-jc316c5afle3eoka5q4i7vd3amf82uj9.apps.googleusercontent.com';
 var onbPseudo='';
 function randPseudo(){return ONB_PSEUDO[Math.floor(Math.random()*ONB_PSEUDO.length)]}
 function saveLocal(mode,pseudo,token,email){try{
@@ -3086,6 +3088,7 @@ function onbAccountHtml(P){
    :'<h2 class="onb-h">Your account</h2>'+
     '<p class="onb-p">With an account your journal and settings are on every device. You can change or delete it anytime.</p>')+
     '<button class="btn" id="onbGoogle">'+(P?'Kontynuuj z Google':'Continue with Google')+'</button>'+
+    '<div id="gbtn" style="display:flex;justify-content:center;margin:4px 0 0"></div>'+
     '<p class="onb-or">'+(P?'albo e-mailem':'or with email')+'</p>'+
     '<input id="onbEmail" class="onb-input" type="email" placeholder="'+(P?'e-mail':'email')+'" autocomplete="email">'+
     '<input id="onbPass" class="onb-input" type="password" placeholder="'+(P?'hasło':'password')+'" autocomplete="current-password" style="margin-top:8px">'+
@@ -3119,6 +3122,35 @@ function pullDoc(){
 }
 function logoutAccount(){try{localStorage.removeItem('krag.token');localStorage.removeItem('krag.email');localStorage.setItem('krag.mode','anon')}catch(e){}}
 if(typeof window!=='undefined')window.KRAG={pushDoc:pushDoc,pullDoc:pullDoc,token:krToken,doc:krDoc,logout:logoutAccount};
+
+// Google Identity Services — ładowane leniwie, dopiero na klik (nie łamiemy „zero zewnętrznych" domyślnie).
+function loadGIS(){
+  return new Promise(function(res,rej){
+    if(window.google&&window.google.accounts&&window.google.accounts.id)return res();
+    var done=false;
+    var to=setTimeout(function(){if(done)return;done=true;rej(new Error('Google nie odpowiada — spróbuj ponownie albo użyj e-maila'))},8000);
+    var s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.defer=true;
+    s.onload=function(){if(done)return;done=true;clearTimeout(to);res()};
+    s.onerror=function(){if(done)return;done=true;clearTimeout(to);rej(new Error('nie udało się załadować Google'))};
+    document.head.appendChild(s);
+  });
+}
+function googleSignIn(P){
+  if(!GOOGLE_CLIENT_ID){acctErr(P?'Brak konfiguracji Google.':'Google not configured.');return}
+  acctErr(P?'Otwieram Google…':'Opening Google…');
+  loadGIS().then(function(){
+    window.google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:function(resp){
+      acct('/auth/google',{idToken:resp.credential,pseudonym:onbPseudo||randPseudo()}).then(function(res){
+        saveLocal('account',res.pseudonym||onbPseudo,res.token,res.email||'');
+        return pullDoc().then(function(d){if(!d||!Object.keys(d).length)return pushDoc({pseudonym:res.pseudonym||onbPseudo})}).then(function(){closeOnboarding()});
+      }).catch(function(e){acctErr('Google: '+e.message)});
+    }});
+    // przycisk Google w kontenerze + One Tap jako wsparcie
+    var slot=$('#gbtn'); if(slot){slot.innerHTML='';try{window.google.accounts.id.renderButton(slot,{type:'standard',theme:'filled_black',size:'large',width:280,text:'continue_with'})}catch(e){}}
+    try{window.google.accounts.id.prompt()}catch(e){}
+    acctErr('');
+  }).catch(function(e){acctErr(e.message)});
+}
 function renderAccount(){
   var el=$('#accountCard'); if(!el)return; var P=lang==='pl';
   var tok=krToken(), email='', ps='';
@@ -3157,7 +3189,7 @@ function renderOnboarding(mode){
     $('#onbBack').onclick=function(){renderOnboarding('intro')};
     $('#onbRegister').onclick=function(){authGo('/auth/register',P)};
     $('#onbLogin').onclick=function(){authGo('/auth/login',P)};
-    $('#onbGoogle').onclick=function(){acctErr(P?'Logowanie Google podłączymy przy uruchomieniu serwera kont.':'Google sign-in connects once the accounts server is live.')};
+    $('#onbGoogle').onclick=function(){googleSignIn(P)};
   }else{
     var inp=$('#onbPseudoIn'); if(inp)inp.oninput=function(){onbPseudo=inp.value};
     $('#onbReroll').onclick=function(){onbPseudo=randPseudo();var i=$('#onbPseudoIn');if(i)i.value=onbPseudo};

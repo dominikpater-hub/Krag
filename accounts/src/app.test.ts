@@ -72,3 +72,10 @@ test('sync bez tokenu → 401', async () => {
 test('Google bez konfiguracji → 501', async () => {
   assert.equal((await post('/auth/google', { idToken: 'x' })).statusCode, 501);
 });
+
+test('Google skonfigurowane: brak idToken → 400 (nie 501)', async () => {
+  process.env.GOOGLE_CLIENT_ID = 'test-client-id';
+  const r = await post('/auth/google', {});
+  delete process.env.GOOGLE_CLIENT_ID;
+  assert.equal(r.statusCode, 400);
+});

@@ -133,6 +133,10 @@ async function verifyGoogle(idToken: string): Promise<{ email: string }> {
   if (!r.ok) throw httpError(401, 'Google odrzucił token');
   const info: any = await r.json();
   if (info.aud !== process.env.GOOGLE_CLIENT_ID) throw httpError(401, 'Token nie dla tej aplikacji');
+  if (info.iss !== 'accounts.google.com' && info.iss !== 'https://accounts.google.com')
+    throw httpError(401, 'Nieprawidłowy wystawca tokenu');
+  if (info.email_verified === false || info.email_verified === 'false')
+    throw httpError(401, 'E-mail Google niezweryfikowany');
   if (!info.email) throw httpError(401, 'Google nie zwrócił e-maila');
   return { email: info.email };
 }
