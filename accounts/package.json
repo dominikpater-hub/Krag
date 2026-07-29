@@ -1,0 +1,24 @@
+{
+  "name": "krag-accounts",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Krąg — konta i synchronizacja danych (e-mail, Google, anonimowo).",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "dev:memory": "tsx src/dev-memory.ts",
+    "test": "tsx --test src/app.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "fastify": "^4.28.1",
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "@types/pg": "^8.11.6",
+    "pg-mem": "^3.0.5",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  }
+}
