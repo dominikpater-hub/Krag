@@ -348,6 +348,15 @@ button{font-family:inherit}
 .onb-mut{color:var(--tx-3);font-size:13px}
 .onb-or{text-align:center;color:var(--tx-3);font-size:12px;margin:14px 0 10px;position:relative}
 .onb-err{color:#d98a4b;font-size:13px;min-height:18px;margin:8px 0 0}
+.onb-benefits{list-style:none;padding:0;margin:6px 0 20px}
+.onb-benefits li{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14.5px;color:var(--tx-2);line-height:1.45}
+.onb-benefits .bi{flex:0 0 auto;width:22px;text-align:center;color:var(--moss)}
+.onb-choice{display:block;width:100%;text-align:left;border-radius:13px;padding:14px 16px;margin:0 0 10px;cursor:pointer;border:1px solid var(--line);background:var(--surf)}
+.onb-choice.prim{background:var(--moss);border-color:var(--moss)}
+.onb-choice .ct{display:block;font-weight:600;font-size:15px;color:var(--tx)}
+.onb-choice.prim .ct{color:var(--moss-d)}
+.onb-choice .cs{display:block;font-size:12.5px;color:var(--tx-3);margin-top:3px}
+.onb-choice.prim .cs{color:rgba(18,24,15,.72)}
 .askida{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:rgba(126,155,119,.08);border:1px solid rgba(126,155,119,.28);border-radius:13px;padding:11px 14px;margin:0 0 16px;cursor:pointer;color:var(--tx-2);font-size:12.5px;line-height:1.4}
 .askida .ai{color:var(--moss);font-size:15px;flex:0 0 auto}
 .askida b{color:var(--tx);font-weight:600}
@@ -2015,8 +2024,8 @@ function bubble(who,html,extra){
   try{d.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){
     var v=$('#view');if(v)v.scrollTop=d.offsetTop-120}
 }
-var IDA_HELLO={pl:'Cześć. Jestem Ida — prowadzę Krąg i odpowiadam z materiałów, które mam. Kiedy czegoś nie mam, mówię to wprost, zamiast zgadywać.',
- en:'Hi. I am Ida — I guide the Circle and answer from the material I have. When something is missing, I say so instead of guessing.',
+var IDA_HELLO={pl:'Cześć. Jestem Ida — towarzyszę Ci w Kręgu i odpowiadam z materiałów, które mam. Kiedy czegoś nie mam, mówię to wprost, zamiast zgadywać.',
+ en:'Hi. I am Ida — I am with you in the Circle and answer from the material I have. When something is missing, I say so instead of guessing.',
  uk:'Привіт. Я Іда — веду Коло і відповідаю з матеріалів, які маю. Коли чогось немає, кажу прямо, а не вгадую.',
  ru:'Привет. Я Ида — веду Круг и отвечаю из материалов, которые у меня есть. Когда чего-то нет, говорю прямо, а не угадываю.',
  de:'Hi. Ich bin Ida. Ich antworte aus dem Material, das ich habe. Wenn etwas fehlt, sage ich es, statt zu raten.',
@@ -3035,26 +3044,38 @@ function acctErr(m){var e=$('#onbErr');if(e)e.textContent=m||''}
 function onbIntroHtml(P){
   return '<div class="onb-badge">◈</div>'+
   (P
-   ?'<h2 class="onb-h">Cześć. Jestem Ida,<br>Twoja przewodniczka po Kręgu.</h2>'+
-    '<p class="onb-p">Krąg to <b>miejsce wsparcia między ludźmi</b>, którzy żyją z HIV albo są blisko kogoś takiego. Pomagam Ci się tu odnaleźć — <b>tłumaczę pojęcia i podpowiadam, dokąd pójść</b>.</p>'+
-    '<p class="lbl">Jak mam się do Ciebie zwracać?</p>'+
-    '<div class="onb-card"><input id="onbPseudoIn" class="onb-input" value="'+escapeHtml(onbPseudo)+'" maxlength="24" autocomplete="off" spellcheck="false"><button class="btn ghost sm" id="onbReroll" style="margin-top:10px;width:auto;padding:8px 14px">Podpowiedz inny</button></div>'+
-    '<p class="onb-p onb-mut">Możesz założyć konto, żeby mieć swoje dane na każdym urządzeniu — albo wejść bez konta i zostawić je na tym telefonie. Anonimowo lub nie: Ty decydujesz.</p>'+
-    '<div class="onb-spacer"></div>'+
-    '<button class="btn" id="onbAcct">Utwórz konto lub zaloguj</button>'+
-    '<button class="btn ghost" id="onbAnon" style="margin-top:10px">Wejdź bez konta</button>'+
-    '<ul class="onb-list" style="margin-top:16px"><li>Zawsze możesz zablokować i zgłosić.</li><li>Kiedy czegoś nie wiem, mówię wprost — nie zgaduję.</li></ul>'+
-    '<p class="note" style="text-align:center">Krąg nie ocenia Twoich wyników — od tego jest lekarz. To prototyp, na przykładowych danych.</p>'
-   :'<h2 class="onb-h">Hi. I am Ida,<br>your guide to the Circle.</h2>'+
-    '<p class="onb-p">The Circle is a <b>place of support between people</b> living with HIV or close to someone who is. I help you find your way — <b>I explain concepts and point you where to go</b>.</p>'+
-    '<p class="lbl">What should I call you?</p>'+
-    '<div class="onb-card"><input id="onbPseudoIn" class="onb-input" value="'+escapeHtml(onbPseudo)+'" maxlength="24" autocomplete="off" spellcheck="false"><button class="btn ghost sm" id="onbReroll" style="margin-top:10px;width:auto;padding:8px 14px">Suggest another</button></div>'+
-    '<p class="onb-p onb-mut">Create an account to keep your data on every device — or enter without one and keep it on this phone. Anonymous or not: your call.</p>'+
-    '<div class="onb-spacer"></div>'+
-    '<button class="btn" id="onbAcct">Create account or sign in</button>'+
-    '<button class="btn ghost" id="onbAnon" style="margin-top:10px">Enter without an account</button>'+
-    '<ul class="onb-list" style="margin-top:16px"><li>You can always block and report.</li><li>When I do not know something, I say so — I do not guess.</li></ul>'+
-    '<p class="note" style="text-align:center">The Circle does not judge your results — a doctor does. This is a prototype, on sample data.</p>');
+   ?'<h2 class="onb-h">Cześć. Jestem Ida.</h2>'+
+    '<p class="onb-p">Towarzyszę osobom żyjącym z HIV i ich bliskim. Pomogę Ci odnaleźć <b>sprawdzone informacje</b>, zrozumieć wyniki badań i korzystać z Kręgu. Gdy potrzebna jest konsultacja medyczna, wyraźnie to zaznaczę.</p>'+
+    '<p class="lbl">W Kręgu możesz</p>'+
+    '<ul class="onb-benefits">'+
+      '<li><span class="bi">📚</span> Uczyć się o HIV prostym językiem</li>'+
+      '<li><span class="bi">📈</span> Prowadzić historię badań</li>'+
+      '<li><span class="bi">💊</span> Pilnować leczenia</li>'+
+      '<li><span class="bi">🤝</span> Rozmawiać z ludźmi, którzy to znają</li>'+
+      '<li><span class="bi">◈</span> Zapytać mnie o wszystko</li>'+
+    '</ul>'+
+    '<p class="lbl">Twój pseudonim</p>'+
+    '<div class="onb-card"><input id="onbPseudoIn" class="onb-input" value="'+escapeHtml(onbPseudo)+'" maxlength="24" autocomplete="off" spellcheck="false"><button class="btn ghost sm" id="onbReroll" style="margin-top:10px;width:auto;padding:8px 14px">🎲 Wylosuj propozycję</button><p class="onb-mut" style="margin:9px 0 0">Możesz wpisać własny albo wylosować.</p></div>'+
+    '<p class="lbl">Jak chcesz korzystać?</p>'+
+    '<button class="onb-choice prim" id="onbAcct"><span class="ct">Zaloguj się lub utwórz konto</span><span class="cs">Synchronizuj dane między urządzeniami i zachowaj historię.</span></button>'+
+    '<button class="onb-choice" id="onbAnon"><span class="ct">Kontynuuj anonimowo</span><span class="cs">Bez konta — dane zostaną tylko na tym urządzeniu.</span></button>'+
+    '<p class="note" style="text-align:center;margin-top:14px">To prototyp, na przykładowych danych.</p>'
+   :'<h2 class="onb-h">Hi. I am Ida.</h2>'+
+    '<p class="onb-p">I keep company to people living with HIV and those close to them. I will help you find <b>trustworthy information</b>, understand test results and make use of the Circle. When medical advice is needed, I will say so clearly.</p>'+
+    '<p class="lbl">In the Circle you can</p>'+
+    '<ul class="onb-benefits">'+
+      '<li><span class="bi">📚</span> Learn about HIV in plain language</li>'+
+      '<li><span class="bi">📈</span> Keep a history of your results</li>'+
+      '<li><span class="bi">💊</span> Stay on top of treatment</li>'+
+      '<li><span class="bi">🤝</span> Talk to people who get it</li>'+
+      '<li><span class="bi">◈</span> Ask me anything</li>'+
+    '</ul>'+
+    '<p class="lbl">Your nickname</p>'+
+    '<div class="onb-card"><input id="onbPseudoIn" class="onb-input" value="'+escapeHtml(onbPseudo)+'" maxlength="24" autocomplete="off" spellcheck="false"><button class="btn ghost sm" id="onbReroll" style="margin-top:10px;width:auto;padding:8px 14px">🎲 Suggest one</button><p class="onb-mut" style="margin:9px 0 0">Type your own or draw a suggestion.</p></div>'+
+    '<p class="lbl">How would you like to use it?</p>'+
+    '<button class="onb-choice prim" id="onbAcct"><span class="ct">Sign in or create an account</span><span class="cs">Sync your data across devices and keep your history.</span></button>'+
+    '<button class="onb-choice" id="onbAnon"><span class="ct">Continue anonymously</span><span class="cs">No account — data stays on this device only.</span></button>'+
+    '<p class="note" style="text-align:center;margin-top:14px">This is a prototype, on sample data.</p>');
 }
 function onbAccountHtml(P){
   return '<div class="onb-badge">◈</div>'+
