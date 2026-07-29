@@ -5,19 +5,32 @@ on:
   workflow_dispatch: {}
 permissions:
   contents: write
+  pull-requests: write
+concurrency:
+  group: krag-watch
+  cancel-in-progress: true
 jobs:
   watch:
+    # fork nie uruchamia cudzej roboty na cudzym repo (audyt W-2)
+    if: github.repository == 'dominikpater-hub/ProjektKrag'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
+      # TODO(sec, W-2): przypiąć akcje po pełnym SHA — tagi @vN mogą się przesunąć.
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
       - name: build i obserwacja źródeł
         working-directory: library
         run: ./build.sh && (node scripts/watch.js || true)
-      - name: commit kolejki, jeśli się zmieniła
-        run: |
-          git config user.name  "krag-watch"
-          git config user.email "watch@krag.local"
-          git add -A library/state library/entries 2>/dev/null || true
-          git diff --cached --quiet || { git commit -m "watch: aktualizacja $(date -u +%F)"; git push; }
+      # Kolejka przeglądu wymaga człowieka → PR, nie push na main (audyt W-2).
+      - name: PR z aktualizacją kolejki i rejestru podpisów
+        uses: peter-evans/create-pull-request@v6
+        with:
+          add-paths: |
+            library/state
+            library/signatures.jsonl
+          branch: watch/aktualizacja
+          title: "watch: aktualizacja kolejki przeglądu"
+          commit-message: "watch: aktualizacja kolejki"
+          body: "Automatyczna obserwacja źródeł. Wymaga przeglądu człowieka przed scaleniem."

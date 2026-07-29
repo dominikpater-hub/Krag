@@ -16,6 +16,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const GATE = require('./gate');
 
 const ROOT = path.resolve(__dirname, '..');
 const entries = fs.readdirSync(path.join(ROOT, 'entries'))
@@ -23,7 +24,9 @@ const entries = fs.readdirSync(path.join(ROOT, 'entries'))
   .map(f => JSON.parse(fs.readFileSync(path.join(ROOT, 'entries', f), 'utf8')));
 const sources = JSON.parse(fs.readFileSync(path.join(ROOT, 'library/sources.json'), 'utf8')).sources;
 const policy = JSON.parse(fs.readFileSync(path.join(ROOT, 'policy.json'), 'utf8'));
-const gate = policy.publishGate.requireVerifierForBlocks;
+const gatedBlocks = GATE.gatedBlocks(policy);                 // K-4: suma obu list z policy
+const DEMO = process.env.KRAG_INCLUDE_UNSIGNED === '1';       // build demo: treść mimo braku podpisu, głośno oznaczona
+const OUT = process.env.KRAG_OUT || 'knowledge.json';
 
 /* ---------- ŚCIEŻKI ----------
    Kolejność bloków w ścieżce to kolejność uczenia, nie alfabet.
@@ -80,25 +83,32 @@ const PATHS = [
    tylko reguła, którą Ida egzekwuje przy pytaniach o własny wynik. */
 
 /* ---------- spłaszczenie wpisów ---------- */
+let heldCount = 0;
 const facts = entries.map(e => {
   const v = e.versions[e.versions.length - 1];
   const srcId = typeof v.source === 'string' ? v.source : (v.source && v.source.id) || '';
   const reg = sources[srcId] || {};
+  const held = GATE.heldReason(policy, e, v);   // 'unverified' | 'rights' | 'locator' | null
+  if (held) heldCount++;
+  const summary = (v.content && v.content.summary) || '';
   return {
     id: e.id.replace('hiv-', ''),
     b: e.block,
     t: e.topic || '',
-    w: (v.content && v.content.summary) || '',
+    // K-1: treść bez podpisu / praw / lokalizatora NIE wychodzi — chyba że build DEMO (KRAG_INCLUDE_UNSIGNED=1).
+    w: (held && !DEMO) ? '' : summary,
+    held: held || undefined,
     s: reg.authority || (v.source && v.source.reference) || srcId,
     c: v.confidence || 'COMMUNITY',
     ver: v.verifiedBy || null,
-    gate: gate.includes(e.block)
+    gate: gatedBlocks.has(e.block)
   };
 });
 
-const puste = facts.filter(f => !f.w.trim());
+// Pusty summary jest błędem TYLKO gdy fakt nie został świadomie wstrzymany bramką.
+const puste = facts.filter(f => !f.held && !f.w.trim());
 if (puste.length) {
-  console.error(`PRZERWANE: ${puste.length} wpisów bez treści — ${puste.slice(0, 5).map(f => f.id).join(', ')}`);
+  console.error(`PRZERWANE: ${puste.length} wpisów bez treści (a nie wstrzymanych bramką) — ${puste.slice(0, 5).map(f => f.id).join(', ')}`);
   process.exit(1);
 }
 
@@ -134,6 +144,7 @@ const bundle = {
   counts: {
     facts: facts.length,
     signed: facts.filter(f => f.ver).length,
+    held: heldCount,
     paths: PATHS.length,
     lessons: lessons.length
   },
@@ -144,11 +155,12 @@ const bundle = {
 
 const outDir = path.join(ROOT, 'dist');
 fs.mkdirSync(outDir, { recursive: true });
-fs.writeFileSync(path.join(outDir, 'knowledge.json'), JSON.stringify(bundle));
+fs.writeFileSync(path.join(outDir, OUT), JSON.stringify(bundle));
 
 console.log(`paczka wiedzy: ${facts.length} faktów · ${PATHS.length} ścieżek · ${lessons.length} lekcji`);
 console.log(`  podpisanych przez człowieka: ${bundle.counts.signed} / ${facts.length}`);
-console.log(`  rozmiar: ${(JSON.stringify(bundle).length / 1024).toFixed(0)} KB`);
+console.log(`  wstrzymanych bramką (bez treści): ${heldCount}${DEMO ? ' — build DEMO pokazuje treść, głośno oznaczoną' : ''}`);
+console.log(`  plik: dist/${OUT} · rozmiar: ${(JSON.stringify(bundle).length / 1024).toFixed(0)} KB`);
 for (const p of PATHS) {
   const n = p.blocks.reduce((a, b) => a + (byBlock[b] || []).length, 0);
   console.log(`  ${p.id.padEnd(13)} ${String(n).padStart(3)} faktów  role: ${p.roles.join(',')}`);

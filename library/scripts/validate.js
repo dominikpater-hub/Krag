@@ -5,6 +5,8 @@
  */
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+const STRICT = process.argv.includes('--strict');
 
 const ROOT = path.resolve(__dirname, '..');
 const policy = JSON.parse(fs.readFileSync(path.join(ROOT, 'policy.json'), 'utf8'));
@@ -51,7 +53,20 @@ for (const file of files) {
   if (!v.content?.summary?.trim()) errors.push(`${at}: pusty summary`);
   if (v.content?.summary && v.content.summary.length > 320)
     warnings.push(`${at}: summary dłuższy niż 320 znaków — to już nie jest jedna myśl`);
-  if (!v.checksum) errors.push(`${at}: brak checksum`);
+  if (!v.checksum) {
+    errors.push(`${at}: brak checksum`);
+  } else {
+    // W-1: checksum nie jest ozdobą — przeliczamy i porównujemy. Rozbieżność = ręczna edycja po migracji.
+    const recomputed = crypto.createHash('sha256')
+      .update(JSON.stringify({ ...v, checksum: null })).digest('hex').slice(0, 16);
+    if (recomputed !== v.checksum)
+      errors.push(`${at}: checksum nie zgadza się z treścią — wpis zmieniony ręcznie po migracji (W-1)`);
+  }
+
+  // W-5: źródło bez lokalizatora jest dla recenzenta tym samym co brak źródła.
+  // Domyślnie ostrzeżenie; twardy błąd pod --strict (włączyć, gdy uzupełni się 16 lokalizatorów).
+  if (src && !src.locator)
+    (STRICT ? errors : warnings).push(`${at}: źródło "${v.source.id}" bez lokalizatora — niesprawdzalne dla recenzenta (W-5)`);
 }
 
 console.log(`validate: ${files.length} wpisów`);

@@ -1,0 +1,35 @@
+ProjektKrag — licencja
+
+1. KOD (skrypty w library/scripts, build.sh, index.html jako aplikacja) — MIT.
+
+MIT License
+
+Copyright (c) 2026 Dominik Pater (ProjektKrag)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+2. TREŚĆ WIEDZY (fakty o HIV, teksty w seed/, dist/, baza w aplikacji) — NIE JEST
+objęta MIT. Każdy materiał pochodzi z konkretnego źródła i podlega prawom tego źródła
+(pole `rights` w library/library/sources.json: PUBLIC_DOMAIN, OPEN_LICENSE, QUOTE_ONLY,
+UNKNOWN). Treści oznaczonych QUOTE_ONLY / UNKNOWN nie wolno redystrybuować bez zgody
+właściciela praw. Bramka publikacji (gate.js) egzekwuje to automatycznie.
+
+3. UWAGA: dobór licencji dla kodu (pkt 1) jest propozycją do potwierdzenia przez
+właściciela projektu. Treść (pkt 2) wymaga rozstrzygnięcia praw dla źródeł UNKNOWN —
+patrz PLAN-NAPRAW-AUDYT.md, Faza 4.

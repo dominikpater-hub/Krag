@@ -8,6 +8,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const gate = require('./gate');
 
 const ROOT = path.resolve(__dirname, '..');
 const policy = JSON.parse(fs.readFileSync(path.join(ROOT, 'policy.json'), 'utf8'));
@@ -20,19 +21,16 @@ const entries = fs.readdirSync(path.join(ROOT, 'entries'))
   .map(f => JSON.parse(fs.readFileSync(path.join(ROOT, 'entries', f), 'utf8')));
 
 const shipped = [];
-const held = { rights: [], unverified: [], stale: [] };
+const held = { rights: [], unverified: [], locator: [], stale: [] };
 
 for (const e of entries) {
   const v = e.versions.find(x => x.id === e.currentVersion);
 
-  // Bramka 1 — prawa. Decyduje o redystrybucji treści.
-  const canRedistribute = policy.rights[v.rights]?.redistribute === true;
-
-  // Bramka 2 — weryfikacja. Decyduje, czy to w ogóle jest wiedza.
-  const verified = e.status === 'PUBLISHED' && !!v.verifiedBy;
-
-  if (!verified) { held.unverified.push(e.id); continue; }
-  if (!canRedistribute) { held.rights.push({ id: e.id, rights: v.rights }); continue; }
+  // Obie bramki w jednym miejscu (gate.js) — dokładnie ten sam kod, co paths-export.js (K-1).
+  const reason = gate.heldReason(policy, e, v);
+  if (reason === 'unverified') { held.unverified.push(e.id); continue; }
+  if (reason === 'rights') { held.rights.push({ id: e.id, rights: v.rights }); continue; }
+  if (reason === 'locator') { held.locator.push(e.id); continue; }
   if (v.nextReviewDue && v.nextReviewDue < today) held.stale.push(e.id);
 
   shipped.push({
@@ -70,6 +68,7 @@ const report = {
   shipped: shipped.length,
   heldUnverified: held.unverified.length,
   heldByRights: held.rights.length,
+  heldByLocator: held.locator.length,
   staleShipped: held.stale.length,
   heldByRightsDetail: held.rights
 };
@@ -78,6 +77,7 @@ fs.writeFileSync(path.join(DIST, 'build-report.json'), JSON.stringify(report, nu
 console.log(`export: ${entries.length} wpisów w bibliotece → ${shipped.length} w paczce`);
 console.log(`  wstrzymane brakiem weryfikacji: ${held.unverified.length}`);
 console.log(`  wstrzymane bramką praw:         ${held.rights.length}`);
+console.log(`  wstrzymane brakiem lokalizatora:${held.locator.length}`);
 console.log(`  wysłane, ale po terminie:       ${held.stale.length}`);
 if (shipped.length === 0) {
   console.log('\nPaczka jest pusta i tak ma być. Krąg pokaże „nie mamy tego jeszcze",');

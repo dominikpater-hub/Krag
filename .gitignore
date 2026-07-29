@@ -1,6 +1,6 @@
 library/entries/
 library/dist/
-library/state/
 library/review/
 node_modules/
 *.log
+# library/state/ NIE jest ignorowane (audyt W-2): pamięć watchera ma być widoczna w historii.

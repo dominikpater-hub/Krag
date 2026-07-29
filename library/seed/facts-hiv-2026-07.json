@@ -569,7 +569,7 @@
       "id": "hiv-0068",
       "block": "pep",
       "topic": "okno czasowe",
-      "why": "Po 72 godzinach PEP jest już nieskuteczny.",
+      "why": "Po 72 godzinach PEP nie jest już zalecany — nie ma dowodów, że działa. Zgłoś się mimo to: potrzebne są testy wyjściowe i ocena, co dalej.",
       "source": "ptn-aids-2025",
       "confidence": "OFFICIAL"
     },
@@ -594,9 +594,9 @@
       "id": "hiv-0071",
       "block": "pep",
       "topic": "kto płaci",
-      "why": "PEP przy ekspozycji pozazawodowej — po seksie, po wspólnej igle, po przemocy seksualnej — jest w Polsce bezpłatny w ramach programu.",
+      "why": "Kto płaci za PEP pozazawodowy w Polsce, zależy od rodzaju ekspozycji i bywa różny — przy części sytuacji koszt może ponosić pacjent. Nie mamy tego jeszcze potwierdzonego u źródła, więc zapytaj o koszt na miejscu, w szpitalu zakaźnym — i nie odkładaj z tego powodu zgłoszenia.",
       "source": "jedenswiat",
-      "confidence": "VERIFIED",
+      "confidence": "COMMUNITY",
       "review": "2026-12-31"
     },
     {

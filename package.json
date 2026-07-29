@@ -1,0 +1,13 @@
+{
+  "name": "projektkrag",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Krąg — baza wiedzy o HIV z bramkami publikacji (podpis człowieka wymagany) + prototyp aplikacji z asystentką Idą.",
+  "scripts": {
+    "build": "cd library && ./build.sh",
+    "validate": "node library/scripts/validate.js",
+    "validate:strict": "node library/scripts/validate.js --strict",
+    "test": "node --test library/scripts/gate.test.mjs && node library/scripts/ida-routing.test.mjs"
+  },
+  "license": "SEE LICENSE"
+}

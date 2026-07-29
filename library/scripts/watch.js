@@ -41,7 +41,7 @@ fs.mkdirSync(STATE_DIR, { recursive: true });
 const state = fs.existsSync(STATE) ? JSON.parse(fs.readFileSync(STATE, 'utf8')) : { sources: {} };
 
 /* ---------- pobieranie ---------- */
-function fetchUrl(url, { maxBytes = 90e6, timeout = 90000 } = {}) {
+function fetchUrl(url, { maxBytes = 90e6, timeout = 90000, redirects = 0 } = {}) {
   return new Promise((resolve, reject) => {
     const mod = url.startsWith('http:') ? http : https;
     const req = mod.get(url, {
@@ -54,7 +54,8 @@ function fetchUrl(url, { maxBytes = 90e6, timeout = 90000 } = {}) {
     }, res => {
       if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
         res.resume();
-        return resolve(fetchUrl(new URL(res.headers.location, url).href, { maxBytes, timeout }));
+        if (redirects >= 5) return reject(new Error('zbyt wiele przekierowań (>5)'));  // S-5: limit pętli
+        return resolve(fetchUrl(new URL(res.headers.location, url).href, { maxBytes, timeout, redirects: redirects + 1 }));
       }
       if (res.statusCode !== 200) { res.resume(); return reject(new Error(`HTTP ${res.statusCode}`)); }
       const enc = res.headers['content-encoding'];
