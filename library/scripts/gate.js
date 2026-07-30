@@ -20,11 +20,23 @@ function hasLocator(version) {
   return !!(s && typeof s === 'object' && s.locator);
 }
 
+/* A-2: parafraza faktu z atrybucją nie jest utworem źródła (chroniona jest forma wyrazu, nie fakt).
+ * Domyślnie WYŁĄCZONE (bezpiecznie, jak dotąd). Włącza je decyzja prawna: policy.derivedRights.publishParaphrased.
+ * Cytat dosłowny (version.verbatim / entry.kind === 'QUOTE') i prawa z blockedForParaphrase — nigdy. */
+function paraphrasePublishable(policy, entry, version) {
+  const dr = policy.derivedRights;
+  if (!dr || !dr.publishParaphrased) return false;
+  if (version && version.verbatim === true) return false;
+  if (entry && String(entry.kind || '').toUpperCase() === 'QUOTE') return false;
+  const blocked = dr.blockedForParaphrase || [];
+  return !blocked.includes(version.rights);
+}
+
 /* Czy TREŚĆ faktu może trafić do użytkownika.
  * Zwraca null gdy wolno, albo powód wstrzymania: 'unverified' | 'rights' | 'locator'. */
 function heldReason(policy, entry, version) {
   if (!isVerified(entry, version)) return 'unverified';
-  if (!canRedistribute(policy, version.rights)) return 'rights';
+  if (!canRedistribute(policy, version.rights) && !paraphrasePublishable(policy, entry, version)) return 'rights';
   if (!hasLocator(version)) return 'locator';
   return null;
 }
@@ -37,4 +49,4 @@ function gatedBlocks(policy) {
   return new Set([...req, ...byBlock]);
 }
 
-module.exports = { canRedistribute, isVerified, hasLocator, heldReason, gatedBlocks };
+module.exports = { canRedistribute, isVerified, hasLocator, heldReason, gatedBlocks, paraphrasePublishable };

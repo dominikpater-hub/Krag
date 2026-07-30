@@ -79,6 +79,11 @@
     "granice": "właściciel projektu + prawnik (kwalifikacja wyrobu medycznego)",
     "prep-pl": "lekarz zakaźnik"
   },
+  "derivedRights": {
+    "$comment": "A-2: parafraza faktu z atrybucją nie jest utworem źródła (chroniony jest sposób wyrażenia, nie fakt). Wpisy w ziarnie to parafrazy, nie cytaty. Gdy publishParaphrased=true, parafrazy ze źródeł QUOTE_ONLY/OPEN/PUBLIC są publikowalne po podpisie; cytaty dosłowne i INTERNAL_ONLY/UNKNOWN nigdy. DOMYŚLNIE false — do potwierdzenia przez prawnika i zapisania jako K-35, dopiero wtedy flip na true.",
+    "publishParaphrased": false,
+    "blockedForParaphrase": ["INTERNAL_ONLY", "UNKNOWN"]
+  },
   "review": {
     "$comment": "Fakt po nextReviewDue nadal ma swoje confidence, ale odpowiedź spada do T2 (C.9.5).",
     "defaultIntervalDays": 730,

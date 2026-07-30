@@ -29,6 +29,20 @@ test('podpisany + redystrybuowalny + lokalizator = publikowalny (null)', () => {
   assert.equal(gate.heldReason(policy, { status: 'PUBLISHED' }, v), null);
 });
 
+test('A-2: parafraza QUOTE_ONLY — domyślnie wstrzymana, po włączeniu publikowalna', () => {
+  const v = V({ rights: 'QUOTE_ONLY', verifiedBy: 'dr X' });
+  const pub = { status: 'PUBLISHED' };
+  // domyślnie (publishParaphrased brak/false) → wstrzymane
+  assert.equal(gate.heldReason(policy, pub, v), 'rights');
+  // po decyzji prawnej (flaga true) → parafraza publikowalna
+  const p2 = { ...policy, derivedRights: { publishParaphrased: true, blockedForParaphrase: ['INTERNAL_ONLY', 'UNKNOWN'] } };
+  assert.equal(gate.heldReason(p2, pub, v), null);
+  // cytat dosłowny nadal nie
+  assert.equal(gate.heldReason(p2, pub, V({ rights: 'QUOTE_ONLY', verifiedBy: 'dr X', verbatim: true })), 'rights');
+  // UNKNOWN nadal nie
+  assert.equal(gate.heldReason(p2, pub, V({ rights: 'UNKNOWN', verifiedBy: 'dr X' })), 'rights');
+});
+
 test('gatedBlocks = suma obu list z policy (K-4)', () => {
   const g = gate.gatedBlocks(policy);
   assert.ok(g.has('pep'), 'blok medyczny z requireVerifierForBlocks');
