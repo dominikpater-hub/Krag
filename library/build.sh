@@ -8,6 +8,7 @@ h1(){ { head -1; cat >/dev/null; }; }
 
 echo "── 1/8  migracja ziaren faktów"; rm -rf entries
 for s in seed/facts-*.json; do node scripts/migrate.js "$s" | tail -1; done
+echo "── 1.5   odtworzenie podpisów (A-1)"; node scripts/restore-signatures.js | tail -1
 echo "── 2/8  migracja miejsc";          node scripts/migrate-places.js | tail -1
 echo "── 3/8  walidacja";                node scripts/validate.js | tail -3
 echo "── 4/8  paczka aplikacji";         node scripts/export-to-app.js | h1

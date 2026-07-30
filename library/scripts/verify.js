@@ -95,18 +95,20 @@ for (const { file, e } of matches) {
     sigLog.push({ at: now, action: 'reject', id: e.id, version: v.id, block: e.block, by, role: role || null, reason: reject });
   } else {
     if (v.verifiedBy) continue;                // już podpisane — nie nadpisujemy
+    const contentHash = v.checksum;            // hash treści z migracji (verifiedBy=null) — stabilny, przeżywa build (A-1)
     e.status = 'PUBLISHED'; v.verifiedAt = now; v.verifiedBy = by; v.verifiedRole = role;
     if (note) v.verificationNote = note;
     v.checksum = crypto.createHash('sha256').update(JSON.stringify({ ...v, checksum: null })).digest('hex').slice(0, 16);
-    sigLog.push({ at: now, action: 'verify', id: e.id, version: v.id, block: e.block, by, role, note: note || null, contentHash: v.checksum });
+    sigLog.push({ at: now, action: 'verify', id: e.id, version: v.id, block: e.block, by, role, note: note || null, contentHash });
   }
   touched++;
   if (!dry) fs.writeFileSync(p, JSON.stringify(e, null, 2) + '\n');
 }
 
 // Rejestr podpisów — append-only, COMMITOWANY (w przeciwieństwie do entries/), świadek historii (K-5).
+const SIG = process.env.KRAG_SIG || path.join(ROOT, 'signatures.jsonl');
 if (!dry && sigLog.length) {
-  fs.appendFileSync(path.join(ROOT, 'signatures.jsonl'), sigLog.map(r => JSON.stringify(r)).join('\n') + '\n');
+  fs.appendFileSync(SIG, sigLog.map(r => JSON.stringify(r)).join('\n') + '\n');
 }
 
 const verb = reject ? 'odrzucono' : 'podpisano';

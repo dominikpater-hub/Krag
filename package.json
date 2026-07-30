@@ -7,7 +7,7 @@
     "build": "cd library && ./build.sh",
     "validate": "node library/scripts/validate.js",
     "validate:strict": "node library/scripts/validate.js --strict",
-    "test": "node --test library/scripts/gate.test.mjs && node library/scripts/ida-routing.test.mjs"
+    "test": "node --test library/scripts/gate.test.mjs library/scripts/signatures.test.mjs && node library/scripts/ida-routing.test.mjs"
   },
   "license": "SEE LICENSE"
 }
