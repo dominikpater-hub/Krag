@@ -2,12 +2,15 @@
 -- sesja (token), i jeden dokument danych na konto (dziennik + ustawienia).
 
 create table accounts (
-  id         uuid primary key,
-  email      text unique,                 -- null dla anon
-  pass_hash  text,                         -- null dla google/anon
-  pseudonym  text not null,
-  provider   text not null default 'email', -- email | google | anon
-  created_at timestamptz not null default now()
+  id             uuid primary key,
+  email          text unique,                 -- null dla anon
+  pass_hash      text,                         -- null dla google/anon
+  pseudonym      text not null,
+  provider       text not null default 'email', -- email | google | anon
+  email_verified boolean not null default false, -- google=true; e-mail=false do czasu weryfikacji
+  failed_count   int not null default 0,        -- nieudane logowania (lockout)
+  locked_until   timestamptz,                   -- blokada po serii nieudanych prób
+  created_at     timestamptz not null default now()
 );
 
 create table sessions (

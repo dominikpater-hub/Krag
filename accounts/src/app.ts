@@ -18,7 +18,15 @@ export function buildApp(db: Queryable): FastifyInstance {
 
   app.setErrorHandler((err: any, _req, reply) => {
     const c = err.statusCode ?? 500;
-    reply.code(c >= 400 && c < 600 ? c : 500).send({ error: err.message });
+    reply.code(c >= 400 && c < 600 ? c : 500).send({ error: err.message, ...(err.serverData ? { serverData: err.serverData } : {}) });
+  });
+
+  // Nagłówki bezpieczeństwa dla API (audyt P1-8).
+  app.addHook('onSend', async (_req, reply) => {
+    reply.header('x-content-type-options', 'nosniff');
+    reply.header('referrer-policy', 'no-referrer');
+    reply.header('permissions-policy', 'geolocation=(), camera=(), microphone=()');
+    reply.header('cache-control', 'no-store');
   });
 
   const accountForToken = async (token: string) => {
@@ -67,7 +75,18 @@ export function buildApp(db: Queryable): FastifyInstance {
     const { email, password } = (req.body as any) || {};
     if (!email || !password) throw httpError(400, 'Podaj e-mail i hasło');
     const a = (await db.query('select * from accounts where email = $1', [email])).rows[0];
-    if (!a || !verifyPassword(password, a.pass_hash)) throw httpError(401, 'Zły e-mail lub hasło');
+    // Lockout po serii nieudanych prób (audyt P1-7, brute-force).
+    if (a && a.locked_until && new Date(a.locked_until) > new Date())
+      throw httpError(429, 'Za dużo prób. Spróbuj ponownie za kilka minut.');
+    if (!a || !verifyPassword(password, a.pass_hash)) {
+      if (a) {
+        const n = (a.failed_count || 0) + 1;
+        const lock = n >= 5 ? new Date(Date.now() + 15 * 60_000) : null;
+        await db.query('update accounts set failed_count = $2, locked_until = $3 where id = $1', [a.id, n, lock]);
+      }
+      throw httpError(401, 'Zły e-mail lub hasło');
+    }
+    if (a.failed_count) await db.query('update accounts set failed_count = 0, locked_until = null where id = $1', [a.id]);
     return publicAcc(a, await startSession(a.id));
   });
 
@@ -86,12 +105,16 @@ export function buildApp(db: Queryable): FastifyInstance {
       throw httpError(501, 'Logowanie Google nie jest jeszcze skonfigurowane (brak GOOGLE_CLIENT_ID)');
     const { idToken, pseudonym } = (req.body as any) || {};
     if (!idToken) throw httpError(400, 'Brak idToken');
-    const info = await verifyGoogle(idToken);
+    const info = await verifyGoogle(idToken);   // Google potwierdził ten e-mail
     let a = (await db.query('select * from accounts where email = $1', [info.email])).rows[0];
+    // Pre-hijacking (audyt P0-1): nie loguj do konta założonego HASŁEM, którego e-maila nikt nie zweryfikował.
+    if (a && a.provider !== 'google' && !a.email_verified)
+      throw httpError(409, 'Konto z tym e-mailem założono hasłem. Zaloguj się hasłem, aby połączyć je z Google.');
     if (!a) {
       const id = crypto.randomUUID();
       const ps = pseudonym || DEFAULT_PSEUDO;
-      await db.query('insert into accounts (id, email, pseudonym, provider) values ($1,$2,$3,$4)',
+      // Konto z Google ma z definicji zweryfikowany e-mail.
+      await db.query('insert into accounts (id, email, pseudonym, provider, email_verified) values ($1,$2,$3,$4,true)',
         [id, info.email, ps, 'google']);
       a = { id, email: info.email, pseudonym: ps, provider: 'google' };
     }
@@ -103,14 +126,27 @@ export function buildApp(db: Queryable): FastifyInstance {
     return { pseudonym: a.pseudonym, email: a.email || null, provider: a.provider };
   });
 
+  // Wylogowanie unieważnia token po stronie serwera (audyt P1-7).
+  app.post('/auth/logout', async (req) => {
+    const h = req.headers.authorization ?? '';
+    const token = h.startsWith('Bearer ') ? h.slice(7) : '';
+    if (token) await db.query('delete from sessions where token = $1', [token]);
+    return { ok: true };
+  });
+
   // ——— Synchronizacja: cały dokument konta, last-write-wins ———
   app.put('/sync', async (req) => {
     const a = await requireAuth(req);
     const { data, updatedAt } = (req.body as any) || {};
     const payload = typeof data === 'string' ? data : JSON.stringify(data ?? {});
+    const cur = (await db.query('select data, updated_at from sync_docs where account_id = $1', [a.id])).rows[0];
+    // Ochrona przed cichą utratą (audyt P1-6): nie nadpisuj nowszej wersji starszą — zwróć 409 z danymi serwera.
+    if (cur && updatedAt && new Date(updatedAt) < new Date(cur.updated_at)) {
+      let serverData: any = {}; try { serverData = JSON.parse(cur.data); } catch { /* uszkodzone */ }
+      throw Object.assign(httpError(409, 'Nowsza wersja danych jest na serwerze — scal i spróbuj ponownie'), { serverData });
+    }
     const now = updatedAt ? new Date(updatedAt) : new Date();
-    const exists = (await db.query('select 1 from sync_docs where account_id = $1', [a.id])).rows.length;
-    if (exists) await db.query('update sync_docs set data = $2, updated_at = $3 where account_id = $1', [a.id, payload, now]);
+    if (cur) await db.query('update sync_docs set data = $2, updated_at = $3 where account_id = $1', [a.id, payload, now]);
     else await db.query('insert into sync_docs (account_id, data, updated_at) values ($1,$2,$3)', [a.id, payload, now]);
     return { updatedAt: now.toISOString() };
   });

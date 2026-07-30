@@ -79,3 +79,25 @@ test('Google skonfigurowane: brak idToken → 400 (nie 501)', async () => {
   delete process.env.GOOGLE_CLIENT_ID;
   assert.equal(r.statusCode, 400);
 });
+
+test('wylogowanie unieważnia token po stronie serwera (P1-7)', async () => {
+  const r = (await post('/auth/register', { email: 'log@out.pl', password: 'haslo1234' })).json();
+  assert.equal((await get('/me', r.token)).statusCode, 200);
+  assert.equal((await post('/auth/logout', {}, r.token)).statusCode, 200);
+  assert.equal((await get('/me', r.token)).statusCode, 401);
+});
+
+test('lockout po 5 nieudanych logowaniach → 429 (P1-7)', async () => {
+  await post('/auth/register', { email: 'lock@me.pl', password: 'haslo1234' });
+  for (let i = 0; i < 5; i++) await post('/auth/login', { email: 'lock@me.pl', password: 'zle-haslo' });
+  const r = await post('/auth/login', { email: 'lock@me.pl', password: 'haslo1234' }); // nawet dobre hasło zablokowane
+  assert.equal(r.statusCode, 429);
+});
+
+test('sync: starszy zapis nie nadpisuje nowszego → 409 z danymi serwera (P1-6)', async () => {
+  const r = (await post('/auth/register', { email: 'conf@lict.pl', password: 'haslo1234' })).json();
+  await put('/sync', { data: { v: 'nowe' }, updatedAt: '2026-07-29T12:00:00Z' }, r.token);
+  const stale = await put('/sync', { data: { v: 'stare' }, updatedAt: '2026-07-29T10:00:00Z' }, r.token);
+  assert.equal(stale.statusCode, 409);
+  assert.equal(stale.json().serverData.v, 'nowe');
+});

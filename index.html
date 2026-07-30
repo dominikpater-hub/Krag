@@ -3104,13 +3104,20 @@ function krSaveDoc(d){try{localStorage.setItem('krag.doc',JSON.stringify(d||{}))
 function acctGet(path,token){return fetch(ACCOUNTS_API+path,{headers:token?{authorization:'Bearer '+token}:{}})
   .then(function(r){return r.json().catch(function(){return{}}).then(function(d){if(!r.ok)throw new Error(d.error||('HTTP '+r.status));return d})})}
 function acctPut(path,body,token){return fetch(ACCOUNTS_API+path,{method:'PUT',headers:{'content-type':'application/json',authorization:'Bearer '+token},body:JSON.stringify(body)})
-  .then(function(r){return r.json().catch(function(){return{}}).then(function(d){if(!r.ok)throw new Error(d.error||('HTTP '+r.status));return d})})}
+  .then(function(r){return r.json().catch(function(){return{}}).then(function(d){if(!r.ok){var e=new Error(d.error||('HTTP '+r.status));e.body=d;throw e}return d})})}
 function pushDoc(extra){
   var t=krToken();if(!t)return Promise.resolve(null);
   var d=krDoc();if(extra)for(var k in extra)d[k]=extra[k];
   if(onbPseudo)d.pseudonym=onbPseudo; if(typeof lang!=='undefined')d.lang=lang;
   krSaveDoc(d);
-  return acctPut('/sync',{data:d,updatedAt:new Date().toISOString()},t);
+  return acctPut('/sync',{data:d,updatedAt:new Date().toISOString()},t).catch(function(e){
+    // Konflikt (409): serwer ma nowszą wersję → scal (serwer bazą, lokalne pola nadpisują) i spróbuj raz jeszcze. Bez cichej utraty.
+    if(e&&e.body&&e.body.serverData){
+      var merged=e.body.serverData;for(var k in d)merged[k]=d[k];krSaveDoc(merged);
+      return acctPut('/sync',{data:merged,updatedAt:new Date().toISOString()},t);
+    }
+    throw e;
+  });
 }
 function pullDoc(){
   var t=krToken();if(!t)return Promise.resolve(null);
@@ -3120,7 +3127,11 @@ function pullDoc(){
     return d;
   });
 }
-function logoutAccount(){try{localStorage.removeItem('krag.token');localStorage.removeItem('krag.email');localStorage.setItem('krag.mode','anon')}catch(e){}}
+function logoutAccount(){
+  var t=krToken();
+  if(t){try{fetch(ACCOUNTS_API+'/auth/logout',{method:'POST',headers:{authorization:'Bearer '+t}}).catch(function(){})}catch(e){}}
+  try{localStorage.removeItem('krag.token');localStorage.removeItem('krag.email');localStorage.setItem('krag.mode','anon')}catch(e){}
+}
 if(typeof window!=='undefined')window.KRAG={pushDoc:pushDoc,pullDoc:pullDoc,token:krToken,doc:krDoc,logout:logoutAccount};
 
 // Google Identity Services — ładowane leniwie, dopiero na klik (nie łamiemy „zero zewnętrznych" domyślnie).
