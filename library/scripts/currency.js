@@ -21,30 +21,43 @@ const COST = {
   odbudowa: 52, bezpieczenstwo: 68, psyche: 35, 'pierwsze-dni': 50, dlugoterminowo: 30
 };
 
-const rows = fs.readdirSync(path.join(ROOT, 'entries'))
+const entries = fs.readdirSync(path.join(ROOT, 'entries'))
   .filter(f => f.endsWith('.json'))
-  .map(f => JSON.parse(fs.readFileSync(path.join(ROOT, 'entries', f), 'utf8')))
+  .map(f => JSON.parse(fs.readFileSync(path.join(ROOT, 'entries', f), 'utf8')));
+
+// C-8: zegar przeglądu rusza od DATY PODPISU, nie od daty ziarna. Niepodpisane nie są
+// „przeterminowane" — czekają na podpis, co jest osobną kolejką, nie kolejką przeglądu.
+const unsigned = entries.filter(e => !e.versions.find(x => x.id === e.currentVersion).verifiedBy).length;
+
+const rows = entries
   .map(e => {
     const v = e.versions.find(x => x.id === e.currentVersion);
-    const overdue = v.nextReviewDue && v.nextReviewDue < today;
-    const soon = !overdue && v.nextReviewDue && v.nextReviewDue < warnAt;
+    const signed = !!v.verifiedBy;
+    const interval = (policy.review.intervalByBlock && policy.review.intervalByBlock[e.block]) || policy.review.defaultIntervalDays;
+    // przegląd liczymy tylko dla podpisanych — od daty podpisu + interwał (fallback: migracyjne nextReviewDue)
+    let reviewDue = null;
+    if (signed) reviewDue = v.verifiedAt
+      ? new Date(new Date(v.verifiedAt).getTime() + interval * 864e5).toISOString().slice(0, 10)
+      : v.nextReviewDue;
+    const overdue = reviewDue && reviewDue < today;
+    const soon = !overdue && reviewDue && reviewDue < warnAt;
     const reasons = [];
-    if (!v.verifiedBy) reasons.push('brak podpisu');
     if (overdue) reasons.push('po terminie przeglądu');
     else if (soon) reasons.push('termin za chwilę');
     if (v.rights === 'UNKNOWN') reasons.push('prawa nieustalone');
     return {
       id: e.id, block: e.block, topic: e.topic,
-      due: v.nextReviewDue, verifier: e.requiredVerifier,
+      due: reviewDue, verifier: e.requiredVerifier,
       cost: COST[e.block] ?? 10,
-      urgency: (COST[e.block] ?? 10) + (overdue ? 50 : soon ? 20 : 0) + (!v.verifiedBy ? 30 : 0),
+      urgency: (COST[e.block] ?? 10) + (overdue ? 50 : soon ? 20 : 0),
       reasons
     };
   })
   .filter(r => r.reasons.length)
   .sort((a, b) => b.urgency - a.urgency);
 
-console.log(`currency: ${rows.length} pozycji wymaga uwagi (stan na ${today})\n`);
+console.log(`currency: ${rows.length} pozycji w kolejce przeglądu (stan na ${today})`);
+console.log(`  osobno: ${unsigned} niepodpisanych — czekają na podpis, poza kolejką przeglądu\n`);
 
 const byVerifier = {};
 for (const r of rows) (byVerifier[r.verifier] ??= []).push(r);
