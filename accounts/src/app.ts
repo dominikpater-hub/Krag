@@ -1,6 +1,6 @@
 import Fastify, { type FastifyInstance, type FastifyRequest } from 'fastify';
 import crypto from 'node:crypto';
-import { hashPassword, verifyPassword, newToken, daysFromNow } from './auth.ts';
+import { hashPassword, verifyPassword, newToken, hashToken, daysFromNow } from './auth.ts';
 
 const SESSION_DAYS = 30;
 const DEFAULT_PSEUDO = 'Ktoś z Kręgu';
@@ -16,8 +16,11 @@ function httpError(code: number, msg: string) {
 export function buildApp(db: Queryable): FastifyInstance {
   const app = Fastify({ logger: false });
 
+  // C-4: nieoczekiwane błędy (bez statusCode, np. rzuty Postgresa) → generyczne 500 bez szczegółów.
+  // Nasze zamierzone błędy (httpError ustawia statusCode) zachowują kod i komunikat, także 5xx jak 501.
   app.setErrorHandler((err: any, _req, reply) => {
-    const c = err.statusCode ?? 500;
+    const c = err.statusCode;
+    if (!c) return reply.code(500).send({ error: 'Błąd serwera' });
     reply.code(c >= 400 && c < 600 ? c : 500).send({ error: err.message, ...(err.serverData ? { serverData: err.serverData } : {}) });
   });
 
@@ -29,10 +32,23 @@ export function buildApp(db: Queryable): FastifyInstance {
     reply.header('cache-control', 'no-store');
   });
 
+  const norm = (e: any) => String(e ?? '').trim().toLowerCase();   // B-6: normalizacja e-maila
+
+  // B-2: prosty rate-limit per IP+akcja (fail-closed). Blokuje zgadywanie haseł i enumerację.
+  const hits = new Map<string, number[]>();
+  const guard = (req: FastifyRequest, action: string, max = 20, windowMs = 10 * 60_000) => {
+    const key = `${req.ip}:${action}`;
+    const now = Date.now();
+    const arr = (hits.get(key) || []).filter((t) => now - t < windowMs);
+    arr.push(now);
+    hits.set(key, arr);
+    if (arr.length > max) throw httpError(429, 'Za dużo prób. Spróbuj później.');
+  };
+
   const accountForToken = async (token: string) => {
     const { rows } = await db.query(
       'select a.* from sessions s join accounts a on a.id = s.account_id where s.token = $1 and s.expires_at > now()',
-      [token],
+      [hashToken(token)],   // C-2: w bazie trzymamy hash tokenu, nie token
     );
     return rows[0] || null;
   };
@@ -46,9 +62,10 @@ export function buildApp(db: Queryable): FastifyInstance {
     return a;
   };
   const startSession = async (accountId: string) => {
+    await db.query('delete from sessions where expires_at < now()');   // C-3: sprzątanie wygasłych sesji
     const token = newToken();
     await db.query('insert into sessions (token, account_id, expires_at) values ($1,$2,$3)',
-      [token, accountId, daysFromNow(SESSION_DAYS)]);
+      [hashToken(token), accountId, daysFromNow(SESSION_DAYS)]);        // C-2
     return token;
   };
   const publicAcc = (a: any, token: string) =>
@@ -58,27 +75,35 @@ export function buildApp(db: Queryable): FastifyInstance {
 
   // ——— Rejestracja e-mailem ———
   app.post('/auth/register', async (req) => {
-    const { email, password, pseudonym } = (req.body as any) || {};
+    guard(req, 'register');
+    const body = (req.body as any) || {};
+    const email = norm(body.email);
+    const password = body.password;
     if (!email || !password) throw httpError(400, 'Podaj e-mail i hasło');
     if (String(password).length < 8) throw httpError(400, 'Hasło musi mieć min. 8 znaków');
+    // B-1: pełne zamknięcie enumeracji wymaga weryfikacji e-mail (mailer) — TODO gdy będzie provider poczty.
     if ((await db.query('select 1 from accounts where email = $1', [email])).rows.length)
       throw httpError(409, 'Konto z tym e-mailem już istnieje');
     const id = crypto.randomUUID();
-    const ps = pseudonym || DEFAULT_PSEUDO;
+    const ps = body.pseudonym || DEFAULT_PSEUDO;
     await db.query('insert into accounts (id, email, pass_hash, pseudonym, provider) values ($1,$2,$3,$4,$5)',
-      [id, email, hashPassword(password), ps, 'email']);
+      [id, email, await hashPassword(password), ps, 'email']);
     return publicAcc({ pseudonym: ps, email, provider: 'email' }, await startSession(id));
   });
 
   // ——— Logowanie e-mailem ———
   app.post('/auth/login', async (req) => {
-    const { email, password } = (req.body as any) || {};
+    guard(req, 'login');
+    const body = (req.body as any) || {};
+    const email = norm(body.email);
+    const password = body.password;
     if (!email || !password) throw httpError(400, 'Podaj e-mail i hasło');
     const a = (await db.query('select * from accounts where email = $1', [email])).rows[0];
-    // Lockout po serii nieudanych prób (audyt P1-7, brute-force).
+    // Lockout po serii nieudanych prób (audyt P1-7).
     if (a && a.locked_until && new Date(a.locked_until) > new Date())
       throw httpError(429, 'Za dużo prób. Spróbuj ponownie za kilka minut.');
-    if (!a || !verifyPassword(password, a.pass_hash)) {
+    const okPass = a ? await verifyPassword(password, a.pass_hash) : false;
+    if (!okPass) {
       if (a) {
         const n = (a.failed_count || 0) + 1;
         const lock = n >= 5 ? new Date(Date.now() + 15 * 60_000) : null;
@@ -101,22 +126,23 @@ export function buildApp(db: Queryable): FastifyInstance {
 
   // ——— Google — działa dopiero po ustawieniu GOOGLE_CLIENT_ID ———
   app.post('/auth/google', async (req) => {
+    guard(req, 'google');
     if (!process.env.GOOGLE_CLIENT_ID)
       throw httpError(501, 'Logowanie Google nie jest jeszcze skonfigurowane (brak GOOGLE_CLIENT_ID)');
     const { idToken, pseudonym } = (req.body as any) || {};
     if (!idToken) throw httpError(400, 'Brak idToken');
     const info = await verifyGoogle(idToken);   // Google potwierdził ten e-mail
-    let a = (await db.query('select * from accounts where email = $1', [info.email])).rows[0];
+    const email = norm(info.email);
+    let a = (await db.query('select * from accounts where email = $1', [email])).rows[0];
     // Pre-hijacking (audyt P0-1): nie loguj do konta założonego HASŁEM, którego e-maila nikt nie zweryfikował.
     if (a && a.provider !== 'google' && !a.email_verified)
       throw httpError(409, 'Konto z tym e-mailem założono hasłem. Zaloguj się hasłem, aby połączyć je z Google.');
     if (!a) {
       const id = crypto.randomUUID();
       const ps = pseudonym || DEFAULT_PSEUDO;
-      // Konto z Google ma z definicji zweryfikowany e-mail.
       await db.query('insert into accounts (id, email, pseudonym, provider, email_verified) values ($1,$2,$3,$4,true)',
-        [id, info.email, ps, 'google']);
-      a = { id, email: info.email, pseudonym: ps, provider: 'google' };
+        [id, email, ps, 'google']);
+      a = { id, email, pseudonym: ps, provider: 'google' };
     }
     return publicAcc(a, await startSession(a.id));
   });
@@ -130,11 +156,11 @@ export function buildApp(db: Queryable): FastifyInstance {
   app.post('/auth/logout', async (req) => {
     const h = req.headers.authorization ?? '';
     const token = h.startsWith('Bearer ') ? h.slice(7) : '';
-    if (token) await db.query('delete from sessions where token = $1', [token]);
+    if (token) await db.query('delete from sessions where token = $1', [hashToken(token)]);   // C-2
     return { ok: true };
   });
 
-  // ——— Synchronizacja: cały dokument konta, last-write-wins ———
+  // ——— Synchronizacja: cały dokument konta ———
   app.put('/sync', async (req) => {
     const a = await requireAuth(req);
     const { data, updatedAt } = (req.body as any) || {};

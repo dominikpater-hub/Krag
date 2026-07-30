@@ -9,9 +9,10 @@ Rdzeniem jest społeczność; wiedza, dzienniczek i przypomnienia ją obsługuj�
 ## Struktura
 
 ```
-index.html               prototyp UI (serwowany przez Vercel z korzenia) (jeden plik, zero sieci, otwierany z dysku)
+index.html               prototyp UI (serwowany przez Vercel z korzenia); sieć tylko przy logowaniu/synchronizacji i Google (na klik)
+accounts/                backend kont i synchronizacji (Fastify + Postgres; e-mail, Google, anon)
 library/                 biblioteka wiedzy — warstwy 1 (fakty) i 4 (źródła)
-  seed/                  ziarna: 134 fakty + 81 miejsc (provenance: AI_RESEARCH / OFFICIAL_LIST)
+  seed/                  ziarna: 142 fakty (112+8+22) + 81 miejsc → 223 wpisy w bibliotece (provenance: AI_RESEARCH / OFFICIAL_LIST)
   library/               sources.json, arv.json (56 ARV z RPL), baza interakcji, allowlista ATC
   scripts/               migrate · validate · verify · export · currency · watch · paths · places · atc-narrow
   policy.json            sufity zaufania, bramki, progi przeglądu, kto co podpisuje

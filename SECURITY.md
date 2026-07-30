@@ -21,6 +21,11 @@ Szczególnie interesują nas zgłoszenia dotyczące:
 
 ## Zasady projektu (skrót)
 
-- Zero zasobów zewnętrznych w aplikacji (brak CDN, fontów, analityki, `fetch` do obcych hostów).
+- Minimalne zasoby zewnętrzne: brak CDN, fontów i analityki. Sieć wychodzi tylko do
+  (a) backendu kont (`accounts/`) przy logowaniu/synchronizacji i (b) Google Identity
+  Services (`accounts.google.com`) — ładowane **dopiero po kliknięciu** „Kontynuuj z Google".
+  Bez konta i bez Google aplikacja nie wykonuje żadnych żądań sieciowych.
+- Dane konta (dziennik/ustawienia) synchronizują się na serwer jawnym tekstem w Postgresie —
+  patrz otwarte zadanie: szyfrowanie dokumentu po stronie klienta + DPIA (art. 9 RODO).
 - Treść medyczna nie jest „wiedzą", dopóki nie podpisze jej człowiek (`verify.js`).
-- Sekrety nie trafiają do repo. Build i watcher nie wymagają danych osobowych.
+- Sekrety nie trafiają do repo (Google Client ID jest publiczny). Build i watcher nie wymagają danych osobowych.
