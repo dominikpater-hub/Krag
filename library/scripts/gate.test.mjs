@@ -14,8 +14,9 @@ test('wpis bez podpisu NIE wychodzi (unverified)', () => {
   assert.equal(gate.heldReason(policy, { status: 'DRAFT' }, V()), 'unverified');
 });
 
-test('wpis QUOTE_ONLY NIE wychodzi, nawet podpisany (rights)', () => {
-  const v = V({ rights: 'QUOTE_ONLY', verifiedBy: 'dr X' });
+test('cytat dosłowny QUOTE_ONLY NIE wychodzi, nawet podpisany (rights)', () => {
+  // po K-35 parafraza QUOTE_ONLY jest publikowalna; cytat dosłowny (verbatim) nadal nie
+  const v = V({ rights: 'QUOTE_ONLY', verifiedBy: 'dr X', verbatim: true });
   assert.equal(gate.heldReason(policy, { status: 'PUBLISHED' }, v), 'rights');
 });
 
