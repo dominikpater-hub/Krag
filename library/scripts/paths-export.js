@@ -139,7 +139,8 @@ const poza = Object.keys(byBlock).filter(b => !uzyte.has(b) && b !== 'granice');
 if (poza.length) console.warn(`uwaga: bloki poza ścieżkami: ${poza.join(', ')}`);
 
 const bundle = {
-  generatedAt: new Date().toISOString().slice(0, 10),
+  // Deterministyczne: data najnowszego materiału, nie data builda — inaczej każdy build brudzi index.html (C-6).
+  generatedAt: Object.values(sources).map((s) => s && s.retrievedAt).filter(Boolean).sort().pop() || policy.version || '1',
   edition: policy.version || '1',
   counts: {
     facts: facts.length,
