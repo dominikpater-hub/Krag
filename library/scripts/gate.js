@@ -32,11 +32,19 @@ function paraphrasePublishable(policy, entry, version) {
   return !blocked.includes(version.rights);
 }
 
+/* D-2: bloki-katalogi z oficjalnego źródła (np. 'miejsca') publikują się z autorytetu źródła,
+ * a nie z podpisu lekarza — pomijają bramkę weryfikacji i praw. Lokalizator dalej wymagany. */
+function bySourceAuthority(policy, entry) {
+  const list = (policy.publishGate && policy.publishGate.publishOnSourceAuthority) || [];
+  return !!entry && list.includes(entry.block);
+}
+
 /* Czy TREŚĆ faktu może trafić do użytkownika.
  * Zwraca null gdy wolno, albo powód wstrzymania: 'unverified' | 'rights' | 'locator'. */
 function heldReason(policy, entry, version) {
-  if (!isVerified(entry, version)) return 'unverified';
-  if (!canRedistribute(policy, version.rights) && !paraphrasePublishable(policy, entry, version)) return 'rights';
+  const authority = bySourceAuthority(policy, entry);
+  if (!authority && !isVerified(entry, version)) return 'unverified';
+  if (!authority && !canRedistribute(policy, version.rights) && !paraphrasePublishable(policy, entry, version)) return 'rights';
   if (!hasLocator(version)) return 'locator';
   return null;
 }

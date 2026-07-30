@@ -44,6 +44,14 @@ test('A-2/K-35: parafraza QUOTE_ONLY publikowalna (włączona); cytat dosłowny 
   assert.equal(gate.heldReason(policy, pub, V({ rights: 'UNKNOWN', verifiedBy: 'dr X' })), 'rights');
 });
 
+test('D-2: miejsca publikują się z autorytetu źródła (bez podpisu), ale wymagają lokalizatora', () => {
+  const place = { status: 'DRAFT', block: 'miejsca' };   // niepodpisane
+  assert.equal(gate.heldReason(policy, place, V({ rights: 'QUOTE_ONLY', source: { id: 'x', locator: 'https://gov.pl' } })), null);
+  assert.equal(gate.heldReason(policy, place, V({ rights: 'QUOTE_ONLY', source: { id: 'x' } })), 'locator');
+  // zwykły blok medyczny niepodpisany dalej wstrzymany
+  assert.equal(gate.heldReason(policy, { status: 'DRAFT', block: 'pep' }, V({ verifiedBy: null })), 'unverified');
+});
+
 test('gatedBlocks = suma obu list z policy (K-4)', () => {
   const g = gate.gatedBlocks(policy);
   assert.ok(g.has('pep'), 'blok medyczny z requireVerifierForBlocks');

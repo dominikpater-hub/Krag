@@ -69,7 +69,9 @@
     ],
     "verifierRole": "lekarz zakaźnik lub inna osoba z uprawnieniami do firmowania treści medycznych",
     "onMissingVerifier": "DRAFT",
-    "$note": "Bloki prawne i społeczne mogą iść przez weryfikację prawnika/osoby z mandatem środowiska — patrz verifierByBlock."
+    "$note": "Bloki prawne i społeczne mogą iść przez weryfikację prawnika/osoby z mandatem środowiska — patrz verifierByBlock.",
+    "publishOnSourceAuthority": ["miejsca"],
+    "$authorityNote": "D-2: 'miejsca' to oficjalny katalog (poradnie ARV, dyżury PEP, PKD) z gov.pl / Krajowego Centrum ds. AIDS (provenance OFFICIAL_LIST). To dane faktograficzne z poważnego, zweryfikowanego źródła — publikują się z autorytetu źródła, bez podpisu lekarza i bez potwierdzania telefonicznego. Wymóg lokalizatora zostaje: każde miejsce musi wskazywać swoje źródło."
   },
   "verifierByBlock": {
     "prawo": "prawnik",
