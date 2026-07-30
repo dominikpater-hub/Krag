@@ -8,6 +8,12 @@ import { buildApp } from './app.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const schema = readFileSync(join(here, '..', 'schema.sql'), 'utf8');
+// C-9: dev-only. CORS '*' poniżej nie może trafić na produkcję.
+if (process.env.NODE_ENV === 'production') {
+  console.error('dev-memory.ts (CORS *, pg-mem) NIE jest do produkcji. Użyj server.ts + Postgres.');
+  process.exit(1);
+}
+
 const mem = newDb();
 mem.public.none(schema);
 const { Pool } = mem.adapters.createPg();

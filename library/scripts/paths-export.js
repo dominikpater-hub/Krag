@@ -38,10 +38,15 @@ const PATHS = [
     lead: { pl: 'Od czego zacząć, jeśli nie wiesz nic.', en: 'Where to start if you know nothing.' },
     blocks: ['transmisja', 'uu', 'testowanie'] },
 
+  { id: 'pierwsze-dni', roles: ['plhiv'],
+    n: { pl: 'Pierwsze dni', en: 'The first days' },
+    lead: { pl: 'Co jest pilne w pierwszym tygodniu, a co może poczekać.', en: 'What is urgent in the first week, and what can wait.' },
+    blocks: ['pierwsze-dni'] },
+
   { id: 'terapia', roles: ['plhiv'],
     n: { pl: 'Leczenie i jak działa', en: 'Treatment and how it works' },
     lead: { pl: 'Co robią leki, co znaczą wyniki i czego się spodziewać.', en: 'What the medication does, what the numbers mean.' },
-    blocks: ['leczenie', 'przebieg', 'wspolistniejace'] },
+    blocks: ['leczenie', 'przebieg', 'wspolistniejace', 'dlugoterminowo'] },
 
   { id: 'odbudowa', roles: ['plhiv'],
     n: { pl: 'Odbudowa odporności', en: 'Rebuilding immunity' },
@@ -149,6 +154,7 @@ const bundle = {
     paths: PATHS.length,
     lessons: lessons.length
   },
+  demo: DEMO,   // C-5: flaga na poziomie paczki — paczka demo zawiera treść niepodpisaną
   paths: PATHS,
   lessons,
   facts

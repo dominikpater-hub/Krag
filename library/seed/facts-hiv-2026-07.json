@@ -128,7 +128,7 @@
       "id": "hiv-0016",
       "block": "przebieg",
       "topic": "CD4",
-      "why": "Liczba CD4 pokazuje, jak silny jest Twój układ odpornościowy. Wynik poniżej 200 oznacza duże ryzyko zakażeń oportunistycznych.",
+      "why": "Liczba CD4 pokazuje, jak silny jest układ odpornościowy. Wynik poniżej 200 oznacza duże ryzyko zakażeń oportunistycznych.",
       "source": "ptn-aids-2025",
       "confidence": "OFFICIAL"
     },
@@ -169,7 +169,7 @@
       "id": "hiv-0021",
       "block": "leczenie",
       "topic": "klasy leków",
-      "why": "Główne klasy leków to NRTI, NNRTI, inhibitory proteazy, inhibitory integrazy, inhibitory wejścia oraz lenakapawir.",
+      "why": "Główne klasy leków to NRTI, NNRTI, inhibitory proteazy, inhibitory integrazy, inhibitory wejścia oraz inhibitory kapsydu (np. lenakapawir).",
       "source": "ptn-aids-2025",
       "confidence": "OFFICIAL"
     },
