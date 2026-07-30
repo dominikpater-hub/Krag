@@ -29,18 +29,18 @@ test('podpisany + redystrybuowalny + lokalizator = publikowalny (null)', () => {
   assert.equal(gate.heldReason(policy, { status: 'PUBLISHED' }, v), null);
 });
 
-test('A-2: parafraza QUOTE_ONLY — domyślnie wstrzymana, po włączeniu publikowalna', () => {
+test('A-2/K-35: parafraza QUOTE_ONLY publikowalna (włączona); cytat dosłowny i UNKNOWN nie', () => {
   const v = V({ rights: 'QUOTE_ONLY', verifiedBy: 'dr X' });
   const pub = { status: 'PUBLISHED' };
-  // domyślnie (publishParaphrased brak/false) → wstrzymane
-  assert.equal(gate.heldReason(policy, pub, v), 'rights');
-  // po decyzji prawnej (flaga true) → parafraza publikowalna
-  const p2 = { ...policy, derivedRights: { publishParaphrased: true, blockedForParaphrase: ['INTERNAL_ONLY', 'UNKNOWN'] } };
-  assert.equal(gate.heldReason(p2, pub, v), null);
+  // polityka ma publishParaphrased=true (decyzja właściciela) → parafraza po podpisie publikowalna
+  assert.equal(gate.heldReason(policy, pub, v), null);
+  // gdyby wyłączyć flagę → wstrzymane bramką praw
+  const off = { ...policy, derivedRights: { ...policy.derivedRights, publishParaphrased: false } };
+  assert.equal(gate.heldReason(off, pub, v), 'rights');
   // cytat dosłowny nadal nie
-  assert.equal(gate.heldReason(p2, pub, V({ rights: 'QUOTE_ONLY', verifiedBy: 'dr X', verbatim: true })), 'rights');
+  assert.equal(gate.heldReason(policy, pub, V({ rights: 'QUOTE_ONLY', verifiedBy: 'dr X', verbatim: true })), 'rights');
   // UNKNOWN nadal nie
-  assert.equal(gate.heldReason(p2, pub, V({ rights: 'UNKNOWN', verifiedBy: 'dr X' })), 'rights');
+  assert.equal(gate.heldReason(policy, pub, V({ rights: 'UNKNOWN', verifiedBy: 'dr X' })), 'rights');
 });
 
 test('gatedBlocks = suma obu list z policy (K-4)', () => {

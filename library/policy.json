@@ -80,8 +80,8 @@
     "prep-pl": "lekarz zakaźnik"
   },
   "derivedRights": {
-    "$comment": "A-2: parafraza faktu z atrybucją nie jest utworem źródła (chroniony jest sposób wyrażenia, nie fakt). Wpisy w ziarnie to parafrazy, nie cytaty. Gdy publishParaphrased=true, parafrazy ze źródeł QUOTE_ONLY/OPEN/PUBLIC są publikowalne po podpisie; cytaty dosłowne i INTERNAL_ONLY/UNKNOWN nigdy. DOMYŚLNIE false — do potwierdzenia przez prawnika i zapisania jako K-35, dopiero wtedy flip na true.",
-    "publishParaphrased": false,
+    "$comment": "A-2 / K-35: parafraza faktu z atrybucją nie jest utworem źródła (chroniony jest sposób wyrażenia, nie fakt). Wpisy w ziarnie to parafrazy, nie cytaty. WŁĄCZONE decyzją właściciela: parafrazy ze źródeł QUOTE_ONLY/OPEN/PUBLIC są publikowalne PO PODPISIE; cytaty dosłowne (verbatim/kind=QUOTE) oraz INTERNAL_ONLY/UNKNOWN nigdy. Zalecane potwierdzenie przez prawnika przed publicznym startem.",
+    "publishParaphrased": true,
     "blockedForParaphrase": ["INTERNAL_ONLY", "UNKNOWN"]
   },
   "review": {
