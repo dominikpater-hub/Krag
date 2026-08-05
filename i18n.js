@@ -5,9 +5,10 @@
  */
 'use strict';
 
-// Języki: „covered" = pełne tłumaczenie UI; reszta jest DOSTĘPNA, ale UI spada na angielski,
-// a fakty medyczne i tak zostają po polsku (podpis człowieka). Model jak w ProjektKrag:
-// społeczność dopisuje tłumaczenia, a użytkownik nie jest zmuszany do polskiego.
+// Języki: polski + języki SĄSIADÓW Polski (de, cz, sk, ua, by, lt, ru) i angielski jako
+// lingua franca. „covered" = pełne tłumaczenie UI; reszta jest DOSTĘPNA, ale UI spada na
+// angielski, a fakty medyczne i tak zostają po polsku (podpis człowieka). Inny język niż
+// z listy — użytkownik zgłasza zapotrzebowanie (lang.req), społeczność dopisuje tłumaczenie.
 export const LANGS = [
   { code: 'pl', name: 'polski', covered: true },
   { code: 'en', name: 'English', covered: true },
@@ -16,9 +17,8 @@ export const LANGS = [
   { code: 'de', name: 'Deutsch', covered: false },
   { code: 'cs', name: 'Čeština', covered: false },
   { code: 'sk', name: 'Slovenčina', covered: false },
-  { code: 'fr', name: 'Français', covered: false },
-  { code: 'es', name: 'Español', covered: false },
-  { code: 'it', name: 'Italiano', covered: false },
+  { code: 'be', name: 'Беларуская', covered: false },
+  { code: 'lt', name: 'Lietuvių', covered: false },
 ];
 export const LANG_NAMES = Object.fromEntries(LANGS.map((l) => [l.code, l.name]));
 const COVERED = new Set(LANGS.filter((l) => l.covered).map((l) => l.code));
@@ -88,7 +88,7 @@ const DICT = {
     'app.startHint': 'Wpisz pseudonim osoby, którą znasz z Kręgu.',
     'app.peerPh': 'Spokojna Rzeka #C3D4',
     'app.open': 'Otwórz rozmowę',
-    'app.empty': 'Nie masz jeszcze rozmów. Porozmawiaj z kimś, kto rozumie — zacznij od katalogu albo pokoju.',
+    'app.empty': 'Nie masz jeszcze rozmów. Porozmawiaj z kimś, kto rozumie — zacznij poniżej: znajdź kogoś albo dołącz do pokoju.',
     'app.newConvo': 'Nowa rozmowa',
     'app.discover': 'Porozmawiaj z ludźmi',
     'app.discoverP': 'Krąg łączy osoby, które przez to przechodzą. Nie musisz nikogo znać — zacznij od okolicy albo tematu.',
@@ -98,8 +98,8 @@ const DICT = {
     // dziennik
     'diary.kicker': 'Twoje zdrowie',
     'diary.title': 'Dziennik',
-    'diary.p': 'Wyniki, leki, wizyty i badania w jednym miejscu — i podgląd, jak zmieniają się w czasie.',
-    'diary.priv': '🔒 Zostaje na tym telefonie.',
+    'diary.p': 'Twoje wyniki, leki, wizyty i badania w jednym miejscu — a Ida czyta z nich trend i podpowiada.',
+    'diary.priv': '🔒 Zostaje na tym telefonie.', 'diary.privLong': 'Wszystko w dzienniku zostaje na tym telefonie. Zrób kopię w Profilu, zanim wyczyścisz dane przeglądarki.',
     'diary.new': 'Nowy wpis',
     'diary.notePh': 'np. CD4 268, wiremia poniżej progu',
     'diary.save': 'Zapisz w dzienniku',
@@ -203,7 +203,7 @@ const DICT = {
     'app.startHint': 'Enter the nickname of someone you know from the Circle.',
     'app.peerPh': 'Calm River #C3D4',
     'app.open': 'Open conversation',
-    'app.empty': 'No conversations yet. Talk to someone who gets it — start with the directory or a room.',
+    'app.empty': 'No conversations yet. Talk to someone who gets it — start below: find someone or join a room.',
     'app.newConvo': 'New conversation',
     'app.discover': 'Talk to people',
     'app.discoverP': 'The Circle connects people going through this. You do not need to know anyone — start by area or topic.',
@@ -212,8 +212,8 @@ const DICT = {
     'app.knowAddr': 'Already have someone’s address or link?',
     'diary.kicker': 'Your health',
     'diary.title': 'Journal',
-    'diary.p': 'Results, meds, visits and tests in one place — and a view of how they change over time.',
-    'diary.priv': '🔒 Stays on this phone.',
+    'diary.p': 'Your results, meds, visits and tests in one place — and Ida reads the trend from them and nudges you.',
+    'diary.priv': '🔒 Stays on this phone.', 'diary.privLong': 'Everything in the diary stays on this phone. Make a backup in Profile before clearing your browser data.',
     'diary.new': 'New entry',
     'diary.notePh': 'e.g. CD4 268, viral load below threshold',
     'diary.save': 'Save to journal',
@@ -313,7 +313,7 @@ const DICT = {
     'app.startHint': 'Введи псевдонім людини, яку знаєш із Кола.',
     'app.peerPh': 'Спокійна Ріка #C3D4',
     'app.open': 'Відкрити розмову',
-    'app.empty': 'Розмов ще немає. Поговори з кимось, хто розуміє — почни з каталогу або кімнати.',
+    'app.empty': 'Розмов ще немає. Поговори з кимось, хто розуміє — почни нижче: знайди когось або приєднайся до кімнати.',
     'app.newConvo': 'Нова розмова',
     'app.discover': 'Поговори з людьми',
     'app.discoverP': 'Коло з’єднує людей, які проходять через це. Не треба нікого знати — почни з околиці або теми.',
@@ -321,9 +321,9 @@ const DICT = {
     'app.joinRoom': 'Приєднайся до тематичної кімнати',
     'app.knowAddr': 'Уже маєш чиюсь адресу або посилання?',
     'diary.kicker': 'Твоє здоров’я',
-    'diary.priv': '🔒 Залишається на цьому телефоні.',
+    'diary.priv': '🔒 Залишається на цьому телефоні.', 'diary.privLong': 'Усе в щоденнику залишається на цьому телефоні. Зроби копію в Профілі, перш ніж чистити дані браузера.',
     'diary.title': 'Щоденник',
-    'diary.p': 'Результати, ліки, візити й аналізи в одному місці — і огляд, як вони змінюються з часом.',
+    'diary.p': 'Твої результати, ліки, візити й аналізи в одному місці — а Іда читає з них тренд і підказує.',
     'diary.new': 'Новий запис',
     'diary.notePh': 'напр. CD4 268, вірусне навантаження нижче порога',
     'diary.save': 'Зберегти у щоденнику',
@@ -423,7 +423,7 @@ const DICT = {
     'app.startHint': 'Введи псевдоним человека, которого знаешь из Круга.',
     'app.peerPh': 'Тихая Река #C3D4',
     'app.open': 'Открыть разговор',
-    'app.empty': 'Разговоров пока нет. Поговори с тем, кто понимает — начни с каталога или комнаты.',
+    'app.empty': 'Разговоров пока нет. Поговори с тем, кто понимает — начни ниже: найди кого-то или войди в комнату.',
     'app.newConvo': 'Новый разговор',
     'app.discover': 'Поговори с людьми',
     'app.discoverP': 'Круг связывает людей, которые проходят через это. Не нужно никого знать — начни с района или темы.',
@@ -431,9 +431,9 @@ const DICT = {
     'app.joinRoom': 'Войди в тематическую комнату',
     'app.knowAddr': 'Уже есть чей-то адрес или ссылка?',
     'diary.kicker': 'Твоё здоровье',
-    'diary.priv': '🔒 Остаётся на этом телефоне.',
+    'diary.priv': '🔒 Остаётся на этом телефоне.', 'diary.privLong': 'Всё в дневнике остаётся на этом телефоне. Сделай копию в Профиле, прежде чем чистить данные браузера.',
     'diary.title': 'Дневник',
-    'diary.p': 'Результаты, лекарства, визиты и анализы в одном месте — и обзор, как они меняются со временем.',
+    'diary.p': 'Твои результаты, лекарства, визиты и анализы в одном месте — а Ида читает по ним тренд и подсказывает.',
     'diary.new': 'Новая запись',
     'diary.notePh': 'напр. CD4 268, вирусная нагрузка ниже порога',
     'diary.save': 'Сохранить в дневник',
@@ -478,16 +478,16 @@ const DICT = {
 
 // —— Dziennik (#7): rozbudowa. Dokładane osobno, by nie puchł główny blok. ——
 Object.assign(DICT.pl, {
-  'd.results': 'Wyniki', 'd.trend': 'Trajektoria', 'd.addResult': 'Dodaj wynik',
+  'd.results': 'Wyniki i badania', 'd.trend': 'Trajektoria', 'd.addResult': 'Dodaj wynik',
   'd.cd4': 'CD4 (komórki/µl)', 'd.vl': 'Wiremia (kopie/ml)', 'd.value': 'Wartość', 'd.date': 'Data',
   'd.meds': 'Leki', 'd.medName': 'Nazwa leku', 'd.medDose': 'Dawka', 'd.medTime': 'Godzina', 'd.addMed': 'Dodaj lek',
   'd.visits': 'Wizyty', 'd.visitTitle': 'Opis wizyty', 'd.addVisit': 'Dodaj wizytę',
-  'd.photos': 'Zdjęcia badań', 'd.addPhoto': 'Wgraj zdjęcie', 'd.notes': 'Notatki', 'd.addNote': 'Dodaj notatkę',
-  'd.photoHint': 'Zdjęcia badań trzymasz prywatnie na tym urządzeniu — jako podgląd. Możesz też odczytać z nich wynik do dziennika.',
+  'd.photos': 'Zdjęcia badań', 'd.addPhoto': 'Wgraj zdjęcie badań', 'd.notes': 'Notatki', 'd.addNote': 'Dodaj notatkę',
+  'd.photoHint': 'Wgraj zdjęcie wyniku — Ida spróbuje odczytać wartości i wpisać je niżej w „Wyniki i badania". Sprawdź i popraw. Zdjęcie zostaje na tym telefonie.',
   'd.scanResult': 'Odczytaj wynik ze zdjęcia', 'd.ocrReading': 'Odczytuję wynik…',
   'd.ocrPrefilled': 'Odczytano — sprawdź wartość powyżej i zapisz.', 'd.ocrNone': 'Nie rozpoznałem wyniku — wpisz go ręcznie.',
   'd.ocrOffline': 'Odczyt ze zdjęcia działa online. Możesz wpisać wynik ręcznie.',
-  'd.cotests': 'Koinfekcje i inne badania', 'd.cotestHint': 'HIV to nie tylko HIV. Śledź też HCV, HBV, kiłę, CMV, HPV, gruźlicę, szczepienia i badania ogólne.',
+  'd.cotests': 'Inne badania i koinfekcje', 'd.cotestHint': 'HIV to nie tylko HIV. Śledź też HCV, HBV, kiłę, CMV, HPV, gruźlicę, szczepienia i badania ogólne.',
   'd.cotestName': 'Co badano', 'd.cotestResult': 'Wynik (np. ujemny, wykryto, szczepienie)', 'd.addCotest': 'Dodaj badanie',
   'd.cotestChips': 'HCV,HBV,Kiła,CMV,HPV,Gruźlica,Lipidy,Nerki',
   'd.demo': 'Wypełnij danymi demo', 'd.del': 'usuń', 'd.none': 'jeszcze nic tu nie ma',
@@ -554,48 +554,48 @@ Object.assign(DICT.ru, {
   'coach.note': 'Это поддержка, не медицинский совет. Тренер показывает твои данные и общие знания — не оценивает результаты и не прогнозирует их. Решения — с врачом.',
 });
 Object.assign(DICT.en, {
-  'd.results': 'Results', 'd.trend': 'Trajectory', 'd.addResult': 'Add result',
+  'd.results': 'Results & tests', 'd.trend': 'Trajectory', 'd.addResult': 'Add result',
   'd.cd4': 'CD4 (cells/µl)', 'd.vl': 'Viral load (copies/ml)', 'd.value': 'Value', 'd.date': 'Date',
   'd.meds': 'Medication', 'd.medName': 'Drug name', 'd.medDose': 'Dose', 'd.medTime': 'Time', 'd.addMed': 'Add drug',
   'd.visits': 'Appointments', 'd.visitTitle': 'Appointment', 'd.addVisit': 'Add appointment',
-  'd.photos': 'Test photos', 'd.addPhoto': 'Upload photo', 'd.notes': 'Notes', 'd.addNote': 'Add note',
-  'd.photoHint': 'Test photos stay private on this device — as a preview. You can also read a result from them into the diary.',
+  'd.photos': 'Test photos', 'd.addPhoto': 'Upload a test photo', 'd.notes': 'Notes', 'd.addNote': 'Add note',
+  'd.photoHint': 'Upload a photo of your result — Ida will try to read the values into “Results & tests” below. Check and fix. The photo stays on this phone.',
   'd.scanResult': 'Read result from photo', 'd.ocrReading': 'Reading result…',
   'd.ocrPrefilled': 'Read — check the value above and save.', 'd.ocrNone': 'Could not recognize a result — enter it manually.',
   'd.ocrOffline': 'Reading from a photo works online. You can enter the result manually.',
-  'd.cotests': 'Co-infections & other tests', 'd.cotestHint': 'HIV is not only HIV. Track HCV, HBV, syphilis, CMV, HPV, TB, vaccinations and general tests too.',
+  'd.cotests': 'Other tests & co-infections', 'd.cotestHint': 'HIV is not only HIV. Track HCV, HBV, syphilis, CMV, HPV, TB, vaccinations and general tests too.',
   'd.cotestName': 'What was tested', 'd.cotestResult': 'Result (e.g. negative, detected, vaccinated)', 'd.addCotest': 'Add test',
   'd.cotestChips': 'HCV,HBV,Syphilis,CMV,HPV,TB,Lipids,Kidney',
   'd.demo': 'Fill with demo data', 'd.del': 'delete', 'd.none': 'nothing here yet',
   'd.undetectable': 'below threshold', 'd.at': 'at', 'd.saved': 'Saved.',
 });
 Object.assign(DICT.uk, {
-  'd.results': 'Результати', 'd.trend': 'Траєкторія', 'd.addResult': 'Додати результат',
+  'd.results': 'Результати та аналізи', 'd.trend': 'Траєкторія', 'd.addResult': 'Додати результат',
   'd.cd4': 'CD4 (клітини/µl)', 'd.vl': 'Вірусне навантаження (копій/мл)', 'd.value': 'Значення', 'd.date': 'Дата',
   'd.meds': 'Ліки', 'd.medName': 'Назва ліків', 'd.medDose': 'Доза', 'd.medTime': 'Час', 'd.addMed': 'Додати ліки',
   'd.visits': 'Візити', 'd.visitTitle': 'Опис візиту', 'd.addVisit': 'Додати візит',
-  'd.photos': 'Фото аналізів', 'd.addPhoto': 'Завантажити фото', 'd.notes': 'Нотатки', 'd.addNote': 'Додати нотатку',
-  'd.photoHint': 'Фото аналізів зберігаються приватно на цьому пристрої — як перегляд. З них можна також зчитати результат у щоденник.',
+  'd.photos': 'Фото аналізів', 'd.addPhoto': 'Завантажити фото аналізу', 'd.notes': 'Нотатки', 'd.addNote': 'Додати нотатку',
+  'd.photoHint': 'Завантаж фото результату — Іда спробує зчитати значення нижче в „Результати та аналізи". Перевір і виправ. Фото залишається на цьому телефоні.',
   'd.scanResult': 'Зчитати результат із фото', 'd.ocrReading': 'Зчитую результат…',
   'd.ocrPrefilled': 'Зчитано — перевір значення вгорі та збережи.', 'd.ocrNone': 'Не вдалося розпізнати результат — впиши вручну.',
   'd.ocrOffline': 'Зчитування з фото працює онлайн. Можеш ввести результат вручну.',
-  'd.cotests': 'Коінфекції та інші аналізи', 'd.cotestHint': 'ВІЛ — це не лише ВІЛ. Стеж також за HCV, HBV, сифілісом, CMV, HPV, туберкульозом, щепленнями та загальними аналізами.',
+  'd.cotests': 'Інші аналізи та коінфекції', 'd.cotestHint': 'ВІЛ — це не лише ВІЛ. Стеж також за HCV, HBV, сифілісом, CMV, HPV, туберкульозом, щепленнями та загальними аналізами.',
   'd.cotestName': 'Що досліджували', 'd.cotestResult': 'Результат (напр. негативний, виявлено, щеплення)', 'd.addCotest': 'Додати аналіз',
   'd.cotestChips': 'HCV,HBV,Сифіліс,CMV,HPV,Туберкульоз,Ліпіди,Нирки',
   'd.demo': 'Заповнити демоданими', 'd.del': 'видалити', 'd.none': 'тут поки нічого немає',
   'd.undetectable': 'нижче порога', 'd.at': 'о', 'd.saved': 'Збережено.',
 });
 Object.assign(DICT.ru, {
-  'd.results': 'Результаты', 'd.trend': 'Траектория', 'd.addResult': 'Добавить результат',
+  'd.results': 'Результаты и анализы', 'd.trend': 'Траектория', 'd.addResult': 'Добавить результат',
   'd.cd4': 'CD4 (клетки/µl)', 'd.vl': 'Вирусная нагрузка (копий/мл)', 'd.value': 'Значение', 'd.date': 'Дата',
   'd.meds': 'Лекарства', 'd.medName': 'Название лекарства', 'd.medDose': 'Доза', 'd.medTime': 'Время', 'd.addMed': 'Добавить лекарство',
   'd.visits': 'Визиты', 'd.visitTitle': 'Описание визита', 'd.addVisit': 'Добавить визит',
-  'd.photos': 'Фото анализов', 'd.addPhoto': 'Загрузить фото', 'd.notes': 'Заметки', 'd.addNote': 'Добавить заметку',
-  'd.photoHint': 'Фото анализов хранятся приватно на этом устройстве — как превью. С них можно также считать результат в дневник.',
+  'd.photos': 'Фото анализов', 'd.addPhoto': 'Загрузить фото анализа', 'd.notes': 'Заметки', 'd.addNote': 'Добавить заметку',
+  'd.photoHint': 'Загрузи фото результата — Ида попробует считать значения ниже в „Результаты и анализы". Проверь и поправь. Фото остаётся на этом телефоне.',
   'd.scanResult': 'Считать результат с фото', 'd.ocrReading': 'Считываю результат…',
   'd.ocrPrefilled': 'Считано — проверь значение выше и сохрани.', 'd.ocrNone': 'Не удалось распознать результат — впиши вручную.',
   'd.ocrOffline': 'Считывание с фото работает онлайн. Можешь ввести результат вручную.',
-  'd.cotests': 'Коинфекции и другие анализы', 'd.cotestHint': 'ВИЧ — это не только ВИЧ. Отслеживай также HCV, HBV, сифилис, CMV, HPV, туберкулёз, прививки и общие анализы.',
+  'd.cotests': 'Другие анализы и коинфекции', 'd.cotestHint': 'ВИЧ — это не только ВИЧ. Отслеживай также HCV, HBV, сифилис, CMV, HPV, туберкулёз, прививки и общие анализы.',
   'd.cotestName': 'Что исследовали', 'd.cotestResult': 'Результат (напр. отрицательный, выявлено, прививка)', 'd.addCotest': 'Добавить анализ',
   'd.cotestChips': 'HCV,HBV,Сифилис,CMV,HPV,Туберкулёз,Липиды,Почки',
   'd.demo': 'Заполнить демоданными', 'd.del': 'удалить', 'd.none': 'здесь пока ничего нет',
@@ -628,7 +628,7 @@ Object.assign(DICT.ru, {
 });
 
 Object.assign(DICT.pl, {
-  'cat.open': 'Katalog', 'cat.title': 'Katalog Kręgu', 'cat.lead': 'Ogłoś się (opcjonalnie) i znajdź osoby z okolicy albo po temacie.',
+  'cat.open': 'Znajdź', 'cat.title': 'Znajdź kogoś do rozmowy', 'cat.lead': 'Ogłoś się (opcjonalnie) i znajdź osoby z okolicy albo po temacie.',
   'cat.mine': 'Twoje ogłoszenie', 'cat.region': 'Okolica (np. Warszawa)', 'cat.tags': 'Tematy (np. świeżo po diagnozie, PrEP)', 'cat.bio': 'Kilka słów o sobie',
   'cat.publish': 'Ogłoś się', 'cat.remove': 'Usuń ogłoszenie', 'cat.browse': 'Przeglądaj',
   'cat.fRegion': 'Okolica', 'cat.fTag': 'Temat', 'cat.search': 'Szukaj', 'cat.none': 'Nikt się jeszcze nie ogłosił (albo brak wyników).',
@@ -638,7 +638,7 @@ Object.assign(DICT.pl, {
   'th.buddyOn': 'Oznaczono jako buddy/mentor.', 'th.buddyOff': 'Zdjęto oznaczenie buddy.', 'th.buddyTag': 'buddy',
 });
 Object.assign(DICT.en, {
-  'cat.open': 'Directory', 'cat.title': 'Circle directory', 'cat.lead': 'List yourself (optional) and find people by area or topic.',
+  'cat.open': 'Find', 'cat.title': 'Find someone to talk to', 'cat.lead': 'List yourself (optional) and find people by area or topic.',
   'cat.mine': 'Your listing', 'cat.region': 'Area (e.g. Warsaw)', 'cat.tags': 'Topics (e.g. newly diagnosed, PrEP)', 'cat.bio': 'A few words about you',
   'cat.publish': 'List me', 'cat.remove': 'Remove listing', 'cat.browse': 'Browse',
   'cat.fRegion': 'Area', 'cat.fTag': 'Topic', 'cat.search': 'Search', 'cat.none': 'No one has listed yet (or no results).',
@@ -648,7 +648,7 @@ Object.assign(DICT.en, {
   'th.buddyOn': 'Marked as buddy/mentor.', 'th.buddyOff': 'Buddy mark removed.', 'th.buddyTag': 'buddy',
 });
 Object.assign(DICT.uk, {
-  'cat.open': 'Каталог', 'cat.title': 'Каталог Кола', 'cat.lead': 'Заяви про себе (необов’язково) і знайди людей поруч або за темою.',
+  'cat.open': 'Знайти', 'cat.title': 'Знайти когось для розмови', 'cat.lead': 'Заяви про себе (необов’язково) і знайди людей поруч або за темою.',
   'cat.mine': 'Твоє оголошення', 'cat.region': 'Околиця (напр. Варшава)', 'cat.tags': 'Теми (напр. щойно діагностовані, PrEP)', 'cat.bio': 'Кілька слів про себе',
   'cat.publish': 'Оголосити', 'cat.remove': 'Видалити оголошення', 'cat.browse': 'Переглядати',
   'cat.fRegion': 'Околиця', 'cat.fTag': 'Тема', 'cat.search': 'Пошук', 'cat.none': 'Ще ніхто не оголосився (або немає результатів).',
@@ -658,7 +658,7 @@ Object.assign(DICT.uk, {
   'th.buddyOn': 'Позначено як buddy/ментор.', 'th.buddyOff': 'Позначку buddy знято.', 'th.buddyTag': 'buddy',
 });
 Object.assign(DICT.ru, {
-  'cat.open': 'Каталог', 'cat.title': 'Каталог Круга', 'cat.lead': 'Заяви о себе (необязательно) и найди людей рядом или по теме.',
+  'cat.open': 'Найти', 'cat.title': 'Найти собеседника', 'cat.lead': 'Заяви о себе (необязательно) и найди людей рядом или по теме.',
   'cat.mine': 'Твоё объявление', 'cat.region': 'Район (напр. Варшава)', 'cat.tags': 'Темы (напр. недавно диагностированные, PrEP)', 'cat.bio': 'Несколько слов о себе',
   'cat.publish': 'Заявить', 'cat.remove': 'Удалить объявление', 'cat.browse': 'Просмотр',
   'cat.fRegion': 'Район', 'cat.fTag': 'Тема', 'cat.search': 'Поиск', 'cat.none': 'Пока никто не заявил (или нет результатов).',
@@ -671,10 +671,10 @@ Object.assign(DICT.pl, { 'login.scan': 'Zeskanuj kod QR', 'scan.hint': 'Skieruj 
 Object.assign(DICT.en, { 'login.scan': 'Scan QR code', 'scan.hint': 'Point the camera at the Circle Key QR', 'scan.cancel': 'Cancel', 'scan.deny': 'No camera access — paste the key manually.' });
 Object.assign(DICT.uk, { 'login.scan': 'Сканувати QR-код', 'scan.hint': 'Наведи камеру на QR-код Ключа Кола', 'scan.cancel': 'Скасувати', 'scan.deny': 'Немає доступу до камери — встав ключ вручну.' });
 Object.assign(DICT.ru, { 'login.scan': 'Сканировать QR-код', 'scan.hint': 'Наведи камеру на QR-код Ключа Круга', 'scan.cancel': 'Отмена', 'scan.deny': 'Нет доступа к камере — вставь ключ вручную.' });
-Object.assign(DICT.pl, { 'lib.open': 'Biblioteka', 'lib.title': 'Biblioteka wiedzy', 'lib.lead': 'Przeglądaj tematy albo zapytaj Idę o wszystko.', 'lib.facts': 'fakty' });
-Object.assign(DICT.en, { 'lib.open': 'Library', 'lib.title': 'Knowledge library', 'lib.lead': 'Browse topics or ask Ida anything.', 'lib.facts': 'facts' });
-Object.assign(DICT.uk, { 'lib.open': 'Бібліотека', 'lib.title': 'Бібліотека знань', 'lib.lead': 'Переглядай теми або запитай Іду про будь-що.', 'lib.facts': 'факти' });
-Object.assign(DICT.ru, { 'lib.open': 'Библиотека', 'lib.title': 'Библиотека знаний', 'lib.lead': 'Просматривай темы или спроси Иду о чём угодно.', 'lib.facts': 'факты' });
+Object.assign(DICT.pl, { 'lib.open': 'Biblioteka', 'lib.title': 'Biblioteka', 'lib.lead': 'Wiedza o HIV prostym językiem — przejrzyj tematy w swoim tempie.', 'lib.facts': 'fakty' });
+Object.assign(DICT.en, { 'lib.open': 'Library', 'lib.title': 'Library', 'lib.lead': 'Knowledge about HIV in plain language — browse topics at your own pace.', 'lib.facts': 'facts' });
+Object.assign(DICT.uk, { 'lib.open': 'Бібліотека', 'lib.title': 'Бібліотека', 'lib.lead': 'Знання про ВІЛ простою мовою — переглядай теми у своєму темпі.', 'lib.facts': 'факти' });
+Object.assign(DICT.ru, { 'lib.open': 'Библиотека', 'lib.title': 'Библиотека', 'lib.lead': 'Знания о ВИЧ простым языком — просматривай темы в своём темпе.', 'lib.facts': 'факты' });
 
 // Pokoje tematyczne + linki-zaproszenia (#6/2)
 Object.assign(DICT.pl, {
@@ -738,46 +738,46 @@ Object.assign(DICT.ru, {
 
 // Pomoc — prawdziwe numery i placówki (#1). Numery są neutralne językowo (w HTML), tu etykiety.
 Object.assign(DICT.pl, {
-  'help.open': 'Pomoc', 'help.title': 'Pomoc', 'help.lead': 'Prawdziwe numery i miejsca — wiele bezpłatnie i anonimowo. Nic z tej listy nie jest nigdzie zapisywane.',
+  'help.open': 'Pomoc', 'help.title': 'Pomoc', 'help.lead': 'Gdy potrzebujesz rozmowy albo pomocy od zaraz — tu masz sprawdzone, w większości bezpłatne numery i miejsca. Zadzwonić możesz anonimowo.',
   'help.emergency': 'Nagły wypadek', 'help.crisis': 'Kryzys psychiczny (24/7)', 'help.youth': 'Dzieci i młodzież (24/7)',
   'help.hiv': 'Telefon Zaufania HIV/AIDS', 'help.hivHours': 'pon–pt 9:00–21:00', 'help.free': 'bezpłatny',
-  'help.test': 'Test HIV — bezpłatnie i anonimowo (PKD)', 'help.testCta': 'Znajdź punkt (aids.gov.pl)',
+  'help.test': 'Poradnie i ośrodki leczące HIV', 'help.testCta': 'Znajdź placówkę (aids.gov.pl)',
   'help.pep': 'Po ryzykownym kontakcie (PEP)', 'help.pepD': 'Im szybciej, tym lepiej — do 48–72 h. Zgłoś się na SOR lub do szpitala zakaźnego (bez skierowania).',
-  'help.call': 'Zadzwoń', 'help.note': 'Numery mogą się zmieniać. Źródło: Krajowe Centrum ds. AIDS (aids.gov.pl).',
+  'help.call': 'Zadzwoń',
   'ida.help1': 'Pomoc i numery zaufania', 'ida.help2': 'Gdzie zrobić test HIV?',
 });
 Object.assign(DICT.en, {
-  'help.open': 'Help', 'help.title': 'Help', 'help.lead': 'Real numbers and places — many free and anonymous. Nothing on this list is saved anywhere.',
+  'help.open': 'Help', 'help.title': 'Help', 'help.lead': 'When you need to talk or get help right now — here are trusted, mostly free numbers and places. You can call anonymously.',
   'help.emergency': 'Emergency', 'help.crisis': 'Mental-health crisis (24/7)', 'help.youth': 'Children & youth (24/7)',
   'help.hiv': 'HIV/AIDS trust line', 'help.hivHours': 'Mon–Fri 9:00–21:00', 'help.free': 'free',
-  'help.test': 'HIV test — free and anonymous (PKD)', 'help.testCta': 'Find a point (aids.gov.pl)',
+  'help.test': 'Clinics that treat HIV', 'help.testCta': 'Find a clinic (aids.gov.pl)',
   'help.pep': 'After a risky exposure (PEP)', 'help.pepD': 'The sooner the better — within 48–72 h. Go to an ER or an infectious-diseases hospital (no referral needed).',
-  'help.call': 'Call', 'help.note': 'Numbers may change. Source: National AIDS Centre, Poland (aids.gov.pl).',
+  'help.call': 'Call',
   'ida.help1': 'Help and trust lines', 'ida.help2': 'Where can I test for HIV?',
 });
 Object.assign(DICT.uk, {
-  'help.open': 'Допомога', 'help.title': 'Допомога', 'help.lead': 'Справжні номери й місця — багато безкоштовно та анонімно. Нічого з цього списку ніде не зберігається.',
+  'help.open': 'Допомога', 'help.title': 'Допомога', 'help.lead': 'Коли потрібна розмова чи допомога негайно — тут перевірені, здебільшого безкоштовні номери й місця. Подзвонити можна анонімно.',
   'help.emergency': 'Екстрений випадок', 'help.crisis': 'Психічна криза (24/7)', 'help.youth': 'Діти та молодь (24/7)',
   'help.hiv': 'Телефон довіри ВІЛ/СНІД', 'help.hivHours': 'пн–пт 9:00–21:00', 'help.free': 'безкоштовно',
-  'help.test': 'Тест на ВІЛ — безкоштовно й анонімно (PKD)', 'help.testCta': 'Знайти пункт (aids.gov.pl)',
+  'help.test': 'Заклади, що лікують ВІЛ', 'help.testCta': 'Знайти заклад (aids.gov.pl)',
   'help.pep': 'Після ризикованого контакту (PEP)', 'help.pepD': 'Що швидше, то краще — до 48–72 год. Звернися до приймального відділення або інфекційної лікарні (без направлення).',
-  'help.call': 'Подзвонити', 'help.note': 'Номери можуть змінюватися. Джерело: Національний центр із питань СНІДу, Польща (aids.gov.pl).',
+  'help.call': 'Подзвонити',
   'ida.help1': 'Допомога й телефони довіри', 'ida.help2': 'Де здати тест на ВІЛ?',
 });
 Object.assign(DICT.ru, {
-  'help.open': 'Помощь', 'help.title': 'Помощь', 'help.lead': 'Настоящие номера и места — многое бесплатно и анонимно. Ничего из этого списка нигде не сохраняется.',
+  'help.open': 'Помощь', 'help.title': 'Помощь', 'help.lead': 'Когда нужен разговор или помощь прямо сейчас — здесь проверенные, в основном бесплатные номера и места. Позвонить можно анонимно.',
   'help.emergency': 'Экстренный случай', 'help.crisis': 'Психический кризис (24/7)', 'help.youth': 'Дети и молодёжь (24/7)',
   'help.hiv': 'Телефон доверия ВИЧ/СПИД', 'help.hivHours': 'пн–пт 9:00–21:00', 'help.free': 'бесплатно',
-  'help.test': 'Тест на ВИЧ — бесплатно и анонимно (PKD)', 'help.testCta': 'Найти пункт (aids.gov.pl)',
+  'help.test': 'Учреждения, лечащие ВИЧ', 'help.testCta': 'Найти учреждение (aids.gov.pl)',
   'help.pep': 'После рискованного контакта (PEP)', 'help.pepD': 'Чем раньше, тем лучше — в течение 48–72 ч. Обратись в приёмное отделение или инфекционную больницу (без направления).',
-  'help.call': 'Позвонить', 'help.note': 'Номера могут меняться. Источник: Национальный центр по СПИДу, Польша (aids.gov.pl).',
+  'help.call': 'Позвонить',
   'ida.help1': 'Помощь и телефоны доверия', 'ida.help2': 'Где сдать тест на ВИЧ?',
 });
 
 // Kopia zapasowa (#5)
 Object.assign(DICT.pl, {
   'bk.summary': 'Kopia zapasowa (na wypadek utraty danych)',
-  'bk.p': 'Dziennik żyje tylko na tym urządzeniu. Jeśli wyczyścisz dane przeglądarki, zniknie. Zapisz zaszyfrowaną kopię — otworzysz ją tylko swoim Kluczem Kręgu.',
+  'bk.p': 'To co innego niż Klucz Kręgu: klucz przenosi Twoje konto, a ta kopia — Twój dziennik (który zostaje tylko na urządzeniu). Jeśli wyczyścisz dane przeglądarki, dziennik zniknie — zapisz zaszyfrowaną kopię, otworzysz ją swoim Kluczem Kręgu.',
   'bk.export': 'Zapisz kopię do pliku', 'bk.import': 'Wczytaj kopię z pliku',
   'bk.done': 'Wczytano wpisów: {n}.', 'bk.empty': 'Kopia nie zawiera nic nowego.',
   'bk.badkey': 'Ten plik nie pasuje do Twojego Klucza Kręgu.', 'bk.badfile': 'To nie wygląda na kopię Kręgu.',
@@ -786,7 +786,7 @@ Object.assign(DICT.pl, {
 });
 Object.assign(DICT.en, {
   'bk.summary': 'Backup (in case data is lost)',
-  'bk.p': 'The journal lives only on this device. If you clear your browser data, it is gone. Save an encrypted copy — only your Circle Key can open it.',
+  'bk.p': 'Different from the Circle Key: the key moves your account, this copy moves your diary (which stays only on the device). If you clear browser data the diary is gone — save an encrypted copy, openable with your Circle Key.',
   'bk.export': 'Save a copy to a file', 'bk.import': 'Load a copy from a file',
   'bk.done': 'Entries loaded: {n}.', 'bk.empty': 'The copy has nothing new.',
   'bk.badkey': 'This file does not match your Circle Key.', 'bk.badfile': 'This does not look like a Circle backup.',
@@ -795,7 +795,7 @@ Object.assign(DICT.en, {
 });
 Object.assign(DICT.uk, {
   'bk.summary': 'Резервна копія (на випадок втрати даних)',
-  'bk.p': 'Щоденник живе лише на цьому пристрої. Якщо очистиш дані браузера — він зникне. Збережи зашифровану копію — відкриється лише твоїм Ключем Кола.',
+  'bk.p': 'Це не те саме, що Ключ Кола: ключ переносить твій акаунт, а ця копія — твій щоденник (який лишається тільки на пристрої). Якщо очистиш дані браузера — щоденник зникне; збережи зашифровану копію, відкриється твоїм Ключем Кола.',
   'bk.export': 'Зберегти копію у файл', 'bk.import': 'Завантажити копію з файлу',
   'bk.done': 'Завантажено записів: {n}.', 'bk.empty': 'У копії немає нічого нового.',
   'bk.badkey': 'Цей файл не відповідає твоєму Ключу Кола.', 'bk.badfile': 'Це не схоже на копію Кола.',
@@ -804,7 +804,7 @@ Object.assign(DICT.uk, {
 });
 Object.assign(DICT.ru, {
   'bk.summary': 'Резервная копия (на случай потери данных)',
-  'bk.p': 'Дневник живёт только на этом устройстве. Если очистишь данные браузера — он исчезнет. Сохрани зашифрованную копию — откроется только твоим Ключом Круга.',
+  'bk.p': 'Это не то же, что Ключ Круга: ключ переносит твой аккаунт, а эта копия — твой дневник (который остаётся только на устройстве). Если очистишь данные браузера — дневник исчезнет; сохрани зашифрованную копию, откроется твоим Ключом Круга.',
   'bk.export': 'Сохранить копию в файл', 'bk.import': 'Загрузить копию из файла',
   'bk.done': 'Загружено записей: {n}.', 'bk.empty': 'В копии нет ничего нового.',
   'bk.badkey': 'Этот файл не подходит к твоему Ключу Круга.', 'bk.badfile': 'Это не похоже на копию Круга.',
@@ -838,6 +838,28 @@ Object.assign(DICT.ru, {
   'emo.meet': 'Поговори с людьми', 'emo.help': 'Открой Помощь',
 });
 
+// Ida Rozumie (LLM) — opt-in + oznaczenia. #AI
+Object.assign(DICT.pl, {
+  'pf.ai': 'Ida Rozumie (AI)',
+  'pf.aiHint': 'Bez tego Ida odpowiada prostym dopasowaniem słów — czasem nie rozumie pytania. Włączone: rozumie lepiej i pamięta wątek rozmowy (ciągłość). Do modelu AI (przez nasz serwer) idzie tylko tekst pytania i kilku ostatnich tur — bez pseudonimu, kluczy i dziennika. Odpowiada wyłącznie z faktów Kręgu. Domyślnie wyłączone; działa po wdrożeniu serwera.',
+  'ai.thinking': 'Myślę…', 'ai.badge': 'AI ułożyło to z faktów Kręgu',
+});
+Object.assign(DICT.en, {
+  'pf.ai': 'Ida Understands (AI)',
+  'pf.aiHint': 'Without this, Ida replies by simple word-matching — and sometimes misses the question. On: she understands better and keeps the thread of the conversation (continuity). Only the question text and the last few turns go to the AI model (via our server) — no pseudonym, keys or diary. She answers only from Circle facts. Off by default; works once the server is deployed.',
+  'ai.thinking': 'Thinking…', 'ai.badge': 'AI composed this from Circle facts',
+});
+Object.assign(DICT.uk, {
+  'pf.ai': 'Іда Розуміє (AI)',
+  'pf.aiHint': 'Без цього Іда відповідає простим збігом слів — інколи не розуміє запитання. Увімкнено: розуміє краще і памʼятає хід розмови (безперервність). До моделі AI (через наш сервер) іде лише текст запитання й кілька останніх реплік — без псевдоніма, ключів і щоденника. Відповідає лише з фактів Кола. Типово вимкнено; працює після розгортання сервера.',
+  'ai.thinking': 'Думаю…', 'ai.badge': 'AI склало це з фактів Кола',
+});
+Object.assign(DICT.ru, {
+  'pf.ai': 'Ида Понимает (AI)',
+  'pf.aiHint': 'Без этого Ида отвечает простым совпадением слов — иногда не понимает вопрос. Включено: понимает лучше и помнит ход разговора (непрерывность). К AI-модели (через наш сервер) идёт только текст вопроса и несколько последних реплик — без псевдонима, ключей и дневника. Отвечает только из фактов Круга. По умолчанию выключено; работает после развёртывания сервера.',
+  'ai.thinking': 'Думаю…', 'ai.badge': 'AI собрало это из фактов Круга',
+});
+
 // Powitania Idy — kilka wariantów (losowo), krótkie, NIE powielają onboardingu. #2
 Object.assign(DICT.pl, { 'ida.hellos': 'Dobrze Cię widzieć. O co chcesz dziś zapytać?|Cześć! Dobrze, że jesteś. Od czego zaczynamy?|Jestem tu. O czym chcesz porozmawiać?|Hej. Zadaj pytanie — odpowiem z tego, co mam, bez zgadywania.' });
 Object.assign(DICT.en, { 'ida.hellos': "Good to see you. What would you like to ask today?|Hi! Glad you're here. Where do we start?|I'm here. What do you want to talk about?|Hey. Ask me anything — I answer from what I have, no guessing." });
@@ -851,10 +873,58 @@ Object.assign(DICT.uk, { 'demo.banner': 'ДЕМО — приклад даних,
 Object.assign(DICT.ru, { 'demo.banner': 'ДЕМО — примерные данные, всё локально на этом устройстве' });
 
 // Selektor języka (#4)
-Object.assign(DICT.pl, { 'lang.partial': '(po angielsku — w tłumaczeniu)', 'lang.note': 'Nie ma w pełni Twojego języka? Wybierz go — UI pokaże się po angielsku, a fakty po polsku, dopóki społeczność nie dopisze tłumaczenia.' });
-Object.assign(DICT.en, { 'lang.partial': '(English for now — being translated)', 'lang.note': 'Your language not fully here yet? Pick it — the UI shows in English and facts stay Polish until the community adds a translation.' });
-Object.assign(DICT.uk, { 'lang.partial': '(поки англійською — у перекладі)', 'lang.note': 'Твоєї мови ще немає повністю? Обери її — інтерфейс буде англійською, а факти польською, доки спільнота не додасть переклад.' });
-Object.assign(DICT.ru, { 'lang.partial': '(пока по-английски — в переводе)', 'lang.note': 'Твоего языка ещё нет полностью? Выбери его — интерфейс будет на английском, а факты на польском, пока сообщество не добавит перевод.' });
+Object.assign(DICT.pl, { 'lang.partial': '(interfejs po angielsku)', 'lang.note': 'Lista to polski i języki sąsiadów. Interfejs w „(po angielsku)" pokaże się po angielsku, a fakty zostają po polsku, dopóki społeczność nie dopisze tłumaczenia. Twojego języka nie ma? Zgłoś go poniżej.' });
+Object.assign(DICT.en, { 'lang.partial': '(interface in English)', 'lang.note': 'The list is Polish and neighbouring languages. Ones marked “(in English)” show the UI in English, with facts staying Polish until the community adds a translation. Language not here? Request it below.' });
+Object.assign(DICT.uk, { 'lang.partial': '(інтерфейс англійською)', 'lang.note': 'Список — це польська та мови сусідів. Позначені „(англійською)" показують інтерфейс англійською, а факти лишаються польською, доки спільнота не додасть переклад. Немає твоєї мови? Повідом нижче.' });
+Object.assign(DICT.ru, { 'lang.partial': '(интерфейс на английском)', 'lang.note': 'В списке польский и языки соседей. Отмеченные „(на английском)" показывают интерфейс на английском, а факты остаются на польском, пока сообщество не добавит перевод. Нет твоего языка? Сообщи ниже.' });
+
+// OCR-all, zgłaszanie języka (#7/#8)
+Object.assign(DICT.pl, { 'd.ocrAdded': 'Dodano do dziennika: {list}. Sprawdź i popraw, jeśli trzeba.', 'lang.req': 'Zgłoś brakujący język', 'lang.reqDone': 'Dzięki — zapiszemy zapotrzebowanie na: {lang}.' });
+Object.assign(DICT.en, { 'd.ocrAdded': 'Added to the diary: {list}. Check and fix if needed.', 'lang.req': 'Request a missing language', 'lang.reqDone': "Thanks — we'll note the demand for: {lang}." });
+Object.assign(DICT.uk, { 'd.ocrAdded': 'Додано до щоденника: {list}. Перевір і виправ, якщо треба.', 'lang.req': 'Повідомити про мову, якої бракує', 'lang.reqDone': 'Дякуємо — врахуємо потребу: {lang}.' });
+Object.assign(DICT.ru, { 'd.ocrAdded': 'Добавлено в дневник: {list}. Проверь и поправь, если нужно.', 'lang.req': 'Сообщить о недостающем языке', 'lang.reqDone': 'Спасибо — учтём спрос на: {lang}.' });
+
+// #3 „Gdzie do lekarza?" — ośrodki leczące HIV po ustaleniu miasta
+Object.assign(DICT.pl, {
+  'ida.docChip': 'Gdzie do lekarza?',
+  'ida.clinicAsk': 'W jakim jesteś mieście? Podam adres poradni leczącej HIV najbliżej Ciebie.',
+  'ida.clinicIntro': 'Poradnie leczące HIV (ARV) w tej okolicy:',
+  'ida.clinicKids': 'dzieci',
+  'ida.clinicConfirm': 'Zadzwoń, zanim pojedziesz — godziny i zasady zapisów bywają różne. Leczenie ARV w Polsce jest bezpłatne, także bez ubezpieczenia.',
+  'ida.clinicSrc': 'Źródło: Krajowe Centrum ds. AIDS (gov.pl)',
+  'ida.clinicMore': 'Pełna lista i numery (Pomoc)',
+  'ida.clinicNone': 'Nie mam tego miasta na liście. Wybierz najbliższe albo zobacz pełną listę w Pomocy:',
+});
+Object.assign(DICT.en, {
+  'ida.docChip': 'Where do I see a doctor?',
+  'ida.clinicAsk': 'Which city are you in? I’ll give the nearest HIV clinic’s address.',
+  'ida.clinicIntro': 'HIV (ARV) clinics in this area:',
+  'ida.clinicKids': 'children',
+  'ida.clinicConfirm': 'Call before you go — hours and booking rules vary. ARV treatment in Poland is free, also without insurance.',
+  'ida.clinicSrc': 'Source: National AIDS Centre, Poland (gov.pl)',
+  'ida.clinicMore': 'Full list and numbers (Help)',
+  'ida.clinicNone': 'I don’t have that city on the list. Pick the nearest one, or see the full list in Help:',
+});
+Object.assign(DICT.uk, {
+  'ida.docChip': 'Куди до лікаря?',
+  'ida.clinicAsk': 'У якому ти місті? Дам адресу найближчої клініки, що лікує ВІЛ.',
+  'ida.clinicIntro': 'Клініки лікування ВІЛ (АРТ) у цьому регіоні:',
+  'ida.clinicKids': 'діти',
+  'ida.clinicConfirm': 'Зателефонуй перед візитом — години і правила запису різні. Лікування АРТ у Польщі безкоштовне, навіть без страховки.',
+  'ida.clinicSrc': 'Джерело: Національний центр із питань СНІДу, Польща (gov.pl)',
+  'ida.clinicMore': 'Повний список і номери (Допомога)',
+  'ida.clinicNone': 'Цього міста немає в списку. Обери найближче або переглянь повний список у Допомозі:',
+});
+Object.assign(DICT.ru, {
+  'ida.docChip': 'Куда к врачу?',
+  'ida.clinicAsk': 'В каком ты городе? Дам адрес ближайшей клиники, лечащей ВИЧ.',
+  'ida.clinicIntro': 'Клиники лечения ВИЧ (АРТ) в этом регионе:',
+  'ida.clinicKids': 'дети',
+  'ida.clinicConfirm': 'Позвони перед визитом — часы и правила записи разные. Лечение АРТ в Польше бесплатное, даже без страховки.',
+  'ida.clinicSrc': 'Источник: Национальный центр по СПИДу, Польша (gov.pl)',
+  'ida.clinicMore': 'Полный список и номера (Помощь)',
+  'ida.clinicNone': 'Этого города нет в списке. Выбери ближайший или посмотри полный список в Помощи:',
+});
 
 let lang = 'pl';
 export function setLang(l) { if (LANG_NAMES[l]) lang = l; }   // dopuszczamy też języki bez pełnego tłumaczenia
